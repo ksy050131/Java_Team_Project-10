@@ -1,24 +1,28 @@
+package account;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class UserData {
+public class LoginData {
     private String username;      // 이름
     private String userId;        // 아이디
     private String phoneNumber;   // 전화번호
     private String birthDate;     // 생일
     private String password;      // 비밀번호
+
     private int level;            // 레벨
     private int exp;              // 현재 경험치
     private int needExp;          // 필요한 경험치
+
     private List<String> checklist;       // 체크리스트 항목
     private List<Boolean> checklistState; // 체크리스트 상태
     private String updated;       // 마지막 업데이트 날짜 (바뀌면 체크리스트 상태 초기화를 위함)
 
     // 기존 생성자 (updated를 직접 입력해야 함)
-    public UserData(String username, String userId, String phoneNumber, String birthDate, String password, 
-                    int level, int exp, int needExp, String updated) {
+    public LoginData(String username, String userId, String phoneNumber, String birthDate, String password,
+                     int level, int exp, int needExp, String updated) {
         this.username = username;
         this.userId = userId;
         this.phoneNumber = phoneNumber;
@@ -34,8 +38,8 @@ public class UserData {
     }
 
     // 새로운 생성자 (updated를 기본값으로 현재 날짜 설정)
-    public UserData(String username, String userId, String phoneNumber, String birthDate, String password, 
-                    int level, int exp, int needExp) {
+    public LoginData(String username, String userId, String phoneNumber, String birthDate, String password,
+                     int level, int exp, int needExp) {
         this(username, userId, phoneNumber, birthDate, password, level, exp, needExp, getCurrentDate());
     }
 

@@ -3,6 +3,8 @@
  * - RoutineManager와 ExpManager를 조율
  * - 데이터 저장 트리거
  */
+package exp;
+
 public class User {
     private UserData userData;
     private RoutineManager routineManager;
