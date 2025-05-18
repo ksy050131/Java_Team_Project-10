@@ -4,6 +4,11 @@
  * - 피보나치 수열로 레벨업 필요 경험치 계산
  * - 현재 상태 출력 기능
  */
+package exp;
+
+import data.UserData;
+import account.LoginData;
+
 public class ExpManager {
     private UserData userData;
 

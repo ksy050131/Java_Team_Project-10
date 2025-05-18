@@ -1,9 +1,11 @@
+package account;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
 public class Account {
-    private UserData currentUser;
+    private LoginData currentUser;
 
     // 비밀번호 암호화
     private String encrypt(String password) {
@@ -23,7 +25,7 @@ public class Account {
 
     // 로그인 처리
     public boolean login(String userId, String password) {
-        UserData user = Database.findId(userId);
+        LoginData user = Database.findId(userId);
         if (user != null && user.getPassword().equals(encrypt(password))) {
             currentUser = user;
             return true;
@@ -38,9 +40,15 @@ public class Account {
             System.out.println("이미 존재하는 아이디입니다.");
             return false;
         }
+
         //레벨과 경험치통 수정
-        UserData newUser = new UserData(username, userId, phoneNumber, birthDate, encrypt(password), 0, 0, 100);
-        boolean isUploaded = Database.uploadUserData(newUser);  // 사용자 데이터 업로드
+        /**
+         * comment: logindata와 userdata를 분리해놓은 상태인데
+         * 여기서 레벨, 경험치를 수정해야할 필요가 있을까?
+         * logindata 와 userdata를 연동하는 방법을 찾아보는 것이 좋을 듯
+         */
+        LoginData newUser = new LoginData(username, userId, phoneNumber, birthDate, encrypt(password), 0, 0, 100);
+        boolean isUploaded = Database.uploadLoginData(newUser);  // 사용자 데이터 업로드
         if (isUploaded) {
             System.out.println("회원가입이 완료되었습니다.");
             return true;
@@ -52,10 +60,10 @@ public class Account {
 
     // 비밀번호 변경 처리 (본인 인증 후)
     public boolean changePassword(String userId, String oldPassword, String newPassword) {
-        UserData user = Database.findId(userId);
+        LoginData user = Database.findId(userId);
         if (user != null && user.getPassword().equals(encrypt(oldPassword))) {
             user.setPassword(encrypt(newPassword));  // 비밀번호 변경
-            Database.updateUserData(user);  // 변경된 정보 저장
+            Database.updateLoginData(user);  // 변경된 정보 저장
             System.out.println("비밀번호가 성공적으로 변경되었습니다.");
             return true;
         }

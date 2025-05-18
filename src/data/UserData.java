@@ -1,14 +1,25 @@
+package data;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+import routine.Routine;
+import account.LoginData;
 
 /**
  * 모든 사용자 데이터를 포함하는 통합 클래스.
  * - JSON 직렬화/역직렬화 대상
  * - RoutineManager, ExpManager와 공유되는 데이터 저장
  */
-public class UserData {
+
+/**
+ * getExp, setExp 등 LoginData와 중복되는 필드가 많아 UserData가
+ * LoginData를 상속하는 것으로 수정 -> 더 다듬을 필요가 있음.
+ * 각각 class의 기능을 명확하게 정의할 필요가 있음.
+ */
+
+public class UserData extends LoginData {
     // 기본 정보
     private String username;
     private String userId;
@@ -30,8 +41,7 @@ public class UserData {
     public UserData(String username, String userId, String phoneNumber,
                     String birthDate, String password, int level,
                     int exp, int needExp) {
-        this.username = username;
-        this.userId = userId;
+        super(username, userId, phoneNumber, birthDate, password, level, exp, needExp);
         // ... 다른 필드 초기화
         this.lastUpdateDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
     }
@@ -46,4 +56,12 @@ public class UserData {
     public List<Routine> getRoutines() {
         return routines;
     }
+
+    // 사용자 아이디 설정 (필요한지 잘 모르겠음)
+    public void setUserId(String id) {
+        this.userId = id;
+    }
+
+    // 사용자 아이디 반환
+    public String getUserId() { return userId; }
 }

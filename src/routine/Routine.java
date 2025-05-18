@@ -1,3 +1,5 @@
+package routine;
+
 import java.util.UUID; // 고유 ID 생성을 위해 추가
 
 public class Routine {

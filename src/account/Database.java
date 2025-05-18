@@ -1,13 +1,22 @@
+package account;
+
 import java.io.*;
 import java.util.*;
 import com.google.gson.Gson;
+import data.UserData;
 
 public class Database {
     private static final String FILE_PATH = "database.json";
     private static Gson gson = new Gson();
 
-    public static List<UserData> loadUserData() {
-        List<UserData> users = new ArrayList<>();
+    /**
+     * logindata save, load, update, upload 기능
+     * + userdata save, load, update 기능 추가
+     */
+
+    // UserData 저장과 구분하기 위해 이름 변경
+    public static List<LoginData> loadLoginData() {
+        List<LoginData> users = new ArrayList<>();
         File file = new File(FILE_PATH);
 
         if (!file.exists()) {
@@ -21,7 +30,7 @@ public class Database {
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
             String jsonData;
             while ((jsonData = reader.readLine()) != null) {
-                UserData user = gson.fromJson(jsonData, UserData.class);
+                LoginData user = gson.fromJson(jsonData, LoginData.class);
                 if (user != null) {
                     users.add(user); 
                 }
@@ -32,9 +41,9 @@ public class Database {
         return users;
     }
 
-    public static void saveUserData(List<UserData> users) {
+    public static void saveLoginData(List<LoginData> users) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
-            for (UserData user : users) {
+            for (LoginData user : users) {
                 user.setUpdated(user.getUpdated()); 
                 String jsonData = gson.toJson(user);
                 writer.write(jsonData + "\n");
@@ -45,11 +54,11 @@ public class Database {
     }
 
     //사용자 등록
-    public static boolean uploadUserData(UserData userData) {
-        List<UserData> users = loadUserData();
+    public static boolean uploadLoginData(LoginData userData) {
+        List<LoginData> users = loadLoginData();
         
         // 중복된 아이디가 있는지 확인
-        for (UserData user : users) {
+        for (LoginData user : users) {
             if (user.getUserId().equals(userData.getUserId())) {
                 System.out.println("이미 존재하는 아이디입니다.");
                 return false;
@@ -57,13 +66,13 @@ public class Database {
         }
 
         users.add(userData);  // 새 사용자 추가
-        saveUserData(users);  // 모든 사용자 데이터를 파일에 저장
+        saveLoginData(users);  // 모든 사용자 데이터를 파일에 저장
         return true;
     }
     
     //사용자 업데이트
-    public static boolean updateUserData(UserData updatedUser) {
-        List<UserData> users = loadUserData();
+    public static boolean updateLoginData(LoginData updatedUser) {
+        List<LoginData> users = loadLoginData();
         boolean found = false;
 
         for (int i = 0; i < users.size(); i++) {
@@ -75,7 +84,7 @@ public class Database {
         }
 
         if (found) {
-            saveUserData(users);
+            saveLoginData(users);
             return true;
         } else {
             System.out.println("해당 아이디의 사용자를 찾을 수 없습니다.");
@@ -84,9 +93,9 @@ public class Database {
     }
 
     // 아이디로 사용자 찾기
-    public static UserData findId(String userId) {
-        List<UserData> users = loadUserData();
-        for (UserData user : users) {
+    public static LoginData findId(String userId) {
+        List<LoginData> users = loadLoginData();
+        for (LoginData user : users) {
             if (user.getUserId().equals(userId)) {
                 return user;
             }
@@ -101,12 +110,76 @@ public class Database {
 
     // 아이디 찾기
     public static String findId(String phoneNumber, String birthDate, String name) {
-        List<UserData> users = loadUserData();
-        for (UserData user : users) {
+        List<LoginData> users = loadLoginData();
+        for (LoginData user : users) {
             if (user.getPhoneNumber().equals(phoneNumber) && user.getBirthDate().equals(birthDate) && user.getUsername().equals(name)) {
                 return user.getUserId();
             }
         }
         return null;
     }
+
+    // UserData 관련 메소드
+
+    // UserData 저장
+    public static void saveUserData(List<UserData> users) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("user_data.json"))) {
+            for (UserData user : users) {
+                String jsonData = gson.toJson(user);
+                writer.write(jsonData + "\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // UserData load
+    public static List<UserData> loadUserData() {
+        List<UserData> users = new ArrayList<>();
+        File file = new File("user_data.json");
+
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader("user_data.json"))) {
+            String jsonData;
+            while ((jsonData = reader.readLine()) != null) {
+                UserData user = gson.fromJson(jsonData, UserData.class);
+                if (user != null) {
+                    users.add(user);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return users;
+    }
+
+    public static boolean updateUserData(UserData updatedUser) {
+        List<UserData> users = loadUserData();
+        boolean found = false;
+
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).getUserId().equals(updatedUser.getUserId())) {
+                users.set(i, updatedUser);
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            saveUserData(users);
+            return true;
+        } else {
+            System.out.println("해당 아이디의 사용자를 찾을 수 없습니다.");
+            return false;
+        }
+    }
 }
+

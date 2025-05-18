@@ -5,12 +5,17 @@
  */
 package exp;
 
-public class User {
+import account.Database;
+import account.LoginData;
+import data.UserData;
+import routine.RoutineManager;
+
+public class ExpUser {
     private UserData userData;
     private RoutineManager routineManager;
     private ExpManager expManager;
 
-    public User(UserData userData) {
+    public ExpUser(UserData userData) {
         this.userData = userData;
         this.routineManager = new RoutineManager(
                 userData.getRoutines(),
