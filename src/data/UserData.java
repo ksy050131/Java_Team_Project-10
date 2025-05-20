@@ -20,17 +20,17 @@ import account.LoginData;
  */
 
 public class UserData extends LoginData {
-    // 기본 정보
-    private String username;
-    private String userId;
-    private String phoneNumber;
-    private String birthDate;
-    private String password; // SHA-256 해시 저장
-
-    // RPG 시스템
-    private int level;
-    private int exp;
-    private int needExp;
+    // 기본 정보(LoginData 과 중복 필드라 일단 제거)
+//    private String username;
+//    private String userId;
+//    private String phoneNumber;
+//    private String birthDate;
+//    private String password; // SHA-256 해시 저장
+//
+//    // RPG 시스템
+//    private int level;
+//    private int exp;
+//    private int needExp;
 
     // 루틴 데이터
     private List<Routine> routines = new ArrayList<>();
@@ -48,9 +48,9 @@ public class UserData extends LoginData {
 
     // Getter/Setter (예시 1개)
     /** 레벨 설정 (ExpManager에서 사용) */
-    public void setLevel(int level) {
-        this.level = level;
-    }
+//    public void setLevel(int level) {
+//        this.level = level;
+//    }
 
     /** 루틴 목록 반환 (RoutineManager에서 사용) */
     public List<Routine> getRoutines() {
@@ -58,10 +58,10 @@ public class UserData extends LoginData {
     }
 
     // 사용자 아이디 설정 (필요한지 잘 모르겠음)
-    public void setUserId(String id) {
-        this.userId = id;
-    }
-
-    // 사용자 아이디 반환
-    public String getUserId() { return userId; }
+//    public void setUserId(String id) {
+//        this.userId = id;
+//    }
+//
+//    // 사용자 아이디 반환
+//    public String getUserId() { return userId; }
 }

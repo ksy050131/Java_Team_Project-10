@@ -1,11 +1,19 @@
 package account;
 
+import data.UserData;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Scanner;
 
 public class Account {
     private LoginData currentUser;
+
+    // CurrentUser를 반환하는 getter
+    public LoginData getCurrentUser() {
+        return currentUser;
+    }
 
     // 비밀번호 암호화
     private String encrypt(String password) {
@@ -48,6 +56,11 @@ public class Account {
          * logindata 와 userdata를 연동하는 방법을 찾아보는 것이 좋을 듯
          */
         LoginData newUser = new LoginData(username, userId, phoneNumber, birthDate, encrypt(password), 0, 0, 100);
+        UserData newUserData = new UserData(username, userId, phoneNumber, birthDate, encrypt(password), 0, 0, 100);
+        List<UserData> allUsers = Database.loadUserData(); // UserData도 저장!!
+        allUsers.add(newUserData);
+        Database.saveUserData(allUsers);
+
         boolean isUploaded = Database.uploadLoginData(newUser);  // 사용자 데이터 업로드
         if (isUploaded) {
             System.out.println("회원가입이 완료되었습니다.");

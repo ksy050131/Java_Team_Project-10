@@ -173,13 +173,26 @@ public class Database {
             }
         }
 
-        if (found) {
-            saveUserData(users);
-            return true;
-        } else {
+        // !found 일 때 (아이디를 찾지 못했을 때) 해당 아이디를 저장하도록 수정
+        if (!found) {
             System.out.println("해당 아이디의 사용자를 찾을 수 없습니다.");
-            return false;
+            users.add(updatedUser);
+            System.out.println("사용자 추가 완료");
         }
+
+        saveUserData(users);
+        return true;
+    }
+
+    // userId를 통해 user_data.json 파일에서 사용자를 찾음.
+    public static UserData findUserData(String userId) {
+        List<UserData> users = loadUserData();
+        for (UserData user : users) {
+            if (user.getUserId().equals(userId)) {
+                return user;
+            }
+        }
+        return null;
     }
 }
 
