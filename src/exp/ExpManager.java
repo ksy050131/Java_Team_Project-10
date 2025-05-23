@@ -7,7 +7,6 @@
 package exp;
 
 import data.UserData;
-import account.LoginData;
 
 public class ExpManager {
     private UserData userData;
@@ -44,6 +43,8 @@ public class ExpManager {
      * @param level 현재 레벨
      * @return 다음 레벨업에 필요한 경험치
      */
+    //AI api를 통해 루틴을 전송하고 경험치를 매겨달라고 하면 어떨까요?? 관련링크:Gemini https://ryans-note.tistory.com/67
+
     private int calculateNextNeedExp(int level) {
         if (level <= 1) return 100; // 레벨 1 기본값
         int a = 0, b = 1;

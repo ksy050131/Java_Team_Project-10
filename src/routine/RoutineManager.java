@@ -1,6 +1,5 @@
 package routine;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID; // Routine 클래스에서 ID 생성을 위해 사용

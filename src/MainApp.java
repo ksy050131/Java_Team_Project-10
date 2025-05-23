@@ -1,10 +1,8 @@
-
 import account.Account;
-import account.Database;
-import account.LoginData;
-import exp.ExpUser;
+import data.Database;
 import data.UserData;
 import routine.Routine;
+import exp.ExpUser;
 import java.util.List;
 import java.util.Scanner;
 
@@ -12,6 +10,7 @@ import java.util.Scanner;
  * 콘솔 기반 실행 메인 흐름 클래스
  * 로그인, 루틴 관리, 경험치 시스템 전반 흐름을 담당
  */
+
 public class MainApp {
     private static final Scanner scanner = new Scanner(System.in);
     private static final Account account = new Account();
@@ -19,39 +18,25 @@ public class MainApp {
     public static void main(String[] args) {
         System.out.println("=== 루틴 코치 콘솔 버전 시작 ===");
 
-        LoginData loginData = loginFlow();
-        if (loginData == null) return;
+        UserData userData = loginFlow();
+        if (userData == null) return;
 
-        // ** 루친 + exp 포함된 UserData 불러오기
-        UserData userData = Database.findUserData(loginData.getUserId());
+        UserData storedData = Database.findUserDataById(userData.getUserId());
 
-        // UserData로 변환
-        if (userData == null) {
-            userData = new UserData(
-                    loginData.getUsername(),
-                    loginData.getUserId(),
-                    loginData.getPhoneNumber(),
-                    loginData.getBirthDate(),
-                    loginData.getPassword(),
-                    loginData.getLevel(),
-                    loginData.getExp(),
-                    loginData.getNeedExp()
-            );
-
-            // 저장도 같이 함
+        if (storedData == null) {
             List<UserData> allUsers = Database.loadUserData();
             allUsers.add(userData);
             Database.saveUserData(allUsers);
+        } else {
+            userData = storedData; // 로그인 후 DB에서 가져온 전체 데이터를 사용자 객체에 반영
         }
 
-        // 루틴, EXP 관리 가능한 유저 객체 생성
-        ExpUser user = new ExpUser(userData);
+        routineMenu(userData);
 
-        routineMenu(user);
         System.out.println("저장 완료. 프로그램을 종료합니다.");
     }
 
-    private static LoginData loginFlow() {
+    private static UserData loginFlow() {
         while (true) {
             System.out.println("\n1. 로그인\n2. 회원가입\n0. 종료");
             System.out.print("선택: ");
@@ -65,7 +50,9 @@ public class MainApp {
                     String pw = scanner.nextLine();
                     if (account.login(id, pw)) {
                         System.out.println("로그인 성공!");
-                        return account.getCurrentUser();
+                        return account.getUser();
+                    } else {
+                        System.out.println("로그인 실패: 아이디 또는 비밀번호가 올바르지 않습니다.");
                     }
                 }
                 case "2" -> {
@@ -90,21 +77,32 @@ public class MainApp {
         }
     }
 
-    private static void routineMenu(ExpUser user) {
+
+    /**
+     * 로그인 후 페이지에 비밀번호 변경 및 회원탈퇴 기능 추가
+     * 환경설정 메뉴같은 걸 만들어서 비밀번호 변경과 회원탈퇴를 거기다가 집어넣어도 될 듯
+     * 그 외에 다른 기능도 있으면 괜찮을 듯 ex) 캐릭터 설정
+     *
+     */
+    private static void routineMenu(UserData userData) {
+        ExpUser expUser = new ExpUser(userData);
         while (true) {
-            System.out.println("\n[루틴 메뉴 - " + user.getUserData().getUsername() + "]");
-            user.getExpManager().printStatus();
+            System.out.println("\n[루틴 메뉴 - " + userData.getUsername() + "]");
+            expUser.getExpManager().printStatus();
+
             System.out.println("1. 루틴 목록 보기");
             System.out.println("2. 루틴 추가");
             System.out.println("3. 루틴 완료");
             System.out.println("4. 루틴 삭제");
+            System.out.println("5. 비밀번호 변경");
+            System.out.println("6. 회원탈퇴");
             System.out.println("0. 로그아웃");
             System.out.print("선택: ");
             String input = scanner.nextLine();
 
             switch (input) {
                 case "1" -> {
-                    List<Routine> routines = user.getRoutineManager().getAllRoutines();
+                    List<Routine> routines = userData.getRoutines();
                     if (routines.isEmpty()) {
                         System.out.println("루틴이 없습니다.");
                     } else {
@@ -120,16 +118,17 @@ public class MainApp {
                     String content = scanner.nextLine();
                     System.out.print("보상 경험치 입력: ");
                     int reward = Integer.parseInt(scanner.nextLine());
-                    user.getRoutineManager().addRoutine(content, reward);
+                    Routine routine = new Routine(content, reward);
+                    userData.getRoutines().add(routine);
                 }
                 case "3" -> {
-                    List<Routine> routines = user.getRoutineManager().getAllRoutines();
+                    List<Routine> routines = userData.getRoutines();
 
                     if (routines.isEmpty()) {
                         System.out.println("완료할 루틴이 없습니다.");
                         break;
                     }
-                    // 루틴 목록 출력
+
                     System.out.println("== 루틴 목록 ==");
                     for (int i = 0; i < routines.size(); i++) {
                         Routine r = routines.get(i);
@@ -138,21 +137,26 @@ public class MainApp {
 
                     System.out.print("완료할 루틴 번호 선택: ");
                     int choice = Integer.parseInt(scanner.nextLine()) - 1;
+
                     if (choice >= 0 && choice < routines.size()) {
-                        String routineId = routines.get(choice).getId();
-                        user.completeRoutine(routineId);
+                        Routine r = routines.get(choice);
+                        if (!r.isCompleted()) {
+                            expUser.completeRoutine(r.getId());  // 경험치 증가 + 레벨업 포함
+                        } else {
+                            System.out.println("이미 완료된 루틴입니다.");
+                        }
                     } else {
                         System.out.println("잘못된 번호입니다.");
                     }
                 }
+
                 case "4" -> {
-                    List<Routine> routines = user.getRoutineManager().getAllRoutines();
+                    List<Routine> routines = userData.getRoutines();
 
                     if (routines.isEmpty()) {
                         System.out.println("삭제할 루틴이 없습니다.");
                         break;
                     }
-                    // 루틴 목록 출력
                     System.out.println("== 루틴 목록 ==");
                     for (int i = 0; i < routines.size(); i++) {
                         Routine r = routines.get(i);
@@ -162,24 +166,37 @@ public class MainApp {
                     System.out.print("삭제할 루틴 번호 선택: ");
                     int choice = Integer.parseInt(scanner.nextLine()) - 1;
                     if (choice >= 0 && choice < routines.size()) {
-                        String routineId = routines.get(choice).getId();
-                        user.getRoutineManager().getRoutineById(routineId);
+                        routines.remove(choice);
+                        System.out.println("루틴이 삭제되었습니다.");
                     } else {
                         System.out.println("잘못된 번호입니다.");
                     }
                 }
+
+                case "5" -> {
+                    System.out.print("현재 비밀번호: ");
+                    String oldPassword = scanner.nextLine();
+                    System.out.print("새로운 비밀번호: ");
+                    String newPassword = scanner.nextLine();
+                    account.changePassword(userData.getUserId(), oldPassword, newPassword);
+                    userData.setPassword(account.encrypt(newPassword));
+                }
+
+                case "6" -> {
+                    System.out.print("비밀번호: ");
+                    String password = scanner.nextLine();
+                    if (account.deleteAccount(userData.getUserId(), password)) {
+                        System.out.println("데이터가 삭제되었습니다.");
+                    }
+                    return;
+                }
                 case "0" -> {
                     System.out.println("로그아웃합니다.");
-
-                    // 로그아웃 전 json파일에 저장
-                    UserData userData = user.getUserData();
                     boolean saved = Database.updateUserData(userData);
-
-                    if (saved) {
+                    if (saved)
                         System.out.println("데이터가 저장되었습니다.");
-                    } else {
+                    else
                         System.out.println("저장에 실패하였습니다.");
-                    }
 
                     return;
                 }

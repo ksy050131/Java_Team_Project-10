@@ -1,11 +1,9 @@
 package data;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import routine.Routine;
-import account.LoginData;
 
 /**
  * 모든 사용자 데이터를 포함하는 통합 클래스.
@@ -17,51 +15,84 @@ import account.LoginData;
  * getExp, setExp 등 LoginData와 중복되는 필드가 많아 UserData가
  * LoginData를 상속하는 것으로 수정 -> 더 다듬을 필요가 있음.
  * 각각 class의 기능을 명확하게 정의할 필요가 있음.
+ *
+ * ->LoginData UserData 병합완료
  */
 
-public class UserData extends LoginData {
-    // 기본 정보(LoginData 과 중복 필드라 일단 제거)
-//    private String username;
-//    private String userId;
-//    private String phoneNumber;
-//    private String birthDate;
-//    private String password; // SHA-256 해시 저장
-//
-//    // RPG 시스템
-//    private int level;
-//    private int exp;
-//    private int needExp;
+//현재 저장된 임시데이터들은 아이디와 비밀번호가 같습니다. id:user1 -> pw:user1
 
-    // 루틴 데이터
-    private List<Routine> routines = new ArrayList<>();
+public class UserData {
+    //사용자 본인인증 데이터
+    private String username; //사용자 이름(본명)
+    private String birthDate;
+    private String password;
 
-    // 마지막 업데이트 날짜 (일일 리셋용)
+    //사용자 로그인 데이터
+    private String userId;
+    private String phoneNumber;
+
+    //RPG 시스템
+    private int level;
+    private int exp;
+    private int needExp;
+
+    //루틴 데이터
+    private List<Routine> routines;
     private String lastUpdateDate;
 
+
+
+    // 기본 생성자
+    public UserData() {
+    }
+
+    // 모든 필드를 초기화하는 생성자
     public UserData(String username, String userId, String phoneNumber,
                     String birthDate, String password, int level,
-                    int exp, int needExp) {
-        super(username, userId, phoneNumber, birthDate, password, level, exp, needExp);
-        // ... 다른 필드 초기화
-        this.lastUpdateDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+                    int exp, int needExp, List<Routine> routines) {
+        this.username = username;
+        this.userId = userId;
+        this.phoneNumber = phoneNumber;
+        this.birthDate = birthDate;
+        this.password = password;
+        this.level = level;
+        this.exp = exp;
+        this.needExp = needExp;
+        this.routines = routines;
+        this.lastUpdateDate = getCurrentDate();
     }
 
-    // Getter/Setter (예시 1개)
-    /** 레벨 설정 (ExpManager에서 사용) */
-//    public void setLevel(int level) {
-//        this.level = level;
-//    }
-
-    /** 루틴 목록 반환 (RoutineManager에서 사용) */
-    public List<Routine> getRoutines() {
-        return routines;
+    private static String getCurrentDate() {
+        return new SimpleDateFormat("yyyy-MM-dd").format(new Date());
     }
 
-    // 사용자 아이디 설정 (필요한지 잘 모르겠음)
-//    public void setUserId(String id) {
-//        this.userId = id;
-//    }
-//
-//    // 사용자 아이디 반환
-//    public String getUserId() { return userId; }
+    // Getter / Setter
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
+    public String getUserId() { return userId; }
+
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+
+    public String getBirthDate() { return birthDate; }
+    public void setBirthDate(String birthDate) { this.birthDate = birthDate; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
+    public int getLevel() { return level; }
+    public void setLevel(int level) { this.level = level; }
+
+    public int getExp() { return exp; }
+    public void setExp(int exp) { this.exp = exp; }
+
+    public int getNeedExp() { return needExp; }
+    public void setNeedExp(int needExp) { this.needExp = needExp; }
+
+    public List<Routine> getRoutines() { return routines; }
+    public void setRoutines(List<Routine> routines) { this.routines = routines; }
+
+    public String getLastUpdateDate() { return lastUpdateDate; }
+    public void setLastUpdateDate(String lastUpdateDate) { this.lastUpdateDate = lastUpdateDate; }
 }
