@@ -118,8 +118,19 @@ public class MainApp {
                     String content = scanner.nextLine();
                     System.out.print("보상 경험치 입력: ");
                     int reward = Integer.parseInt(scanner.nextLine());
-                    Routine routine = new Routine(content, reward);
-                    userData.getRoutines().add(routine);
+                    System.out.print("루틴 종류 입력(1: 일반 루틴 / 2: 매일 반복 루틴): ");
+                    int routineType = Integer.parseInt(scanner.nextLine());
+                    // Routine routine = new Routine(content, reward);
+                    // userData.getRoutines().add(routine);
+                    switch (routineType) {
+                        case 1 -> {
+                            expUser.getRoutineManager().addRoutine(content, reward);
+                        }
+                        case 2 -> {
+                            expUser.getRoutineManager().addDailyRoutine(content, reward);
+                        }
+                        default -> System.out.println("잘못된 종류의 입력입니다.");
+                    }
                 }
                 case "3" -> {
                     List<Routine> routines = userData.getRoutines();
@@ -166,8 +177,9 @@ public class MainApp {
                     System.out.print("삭제할 루틴 번호 선택: ");
                     int choice = Integer.parseInt(scanner.nextLine()) - 1;
                     if (choice >= 0 && choice < routines.size()) {
-                        routines.remove(choice);
-                        System.out.println("루틴이 삭제되었습니다.");
+                        // routines.remove(choice);
+                        // System.out.println("루틴이 삭제되었습니다.");
+                        expUser.getRoutineManager().deleteRoutine(routines.get(choice).getId());
                     } else {
                         System.out.println("잘못된 번호입니다.");
                     }
