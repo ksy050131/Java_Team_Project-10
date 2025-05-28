@@ -107,24 +107,19 @@ public class RoutineManager {
         return 0; // 루틴 못 찾으면 0 XP 반환
     }
 
-    // 루틴 미완료 처리
-    public boolean uncompleteRoutine(String id) {
+    public int uncompleteRoutine(String id) {
         Optional<Routine> routineOpt = getRoutineById(id);
         if (routineOpt.isPresent()) {
             Routine routine = routineOpt.get();
-            if (routine.isCompleted()) { // 완료된 경우에만 처리
+            if (routine.isCompleted()) {
                 routine.markAsUncompleted();
                 triggerSave();
-                System.out.println("할 일 '" + routine.getContent() + "' 미완료 처리됨.");
-                return true;
-            } else {
-                System.out.println("할 일 '" + routine.getContent() + "'은(는) 이미 미완료 상태입니다.");
-                return false;
+                return -routine.getRewardExp(); // 음수 반환
             }
         }
-        System.out.println("오류: ID가 '" + id + "'인 할 일을 찾을 수 없어 미완료 처리할 수 없습니다.");
-        return false;
+        return 0; // 루틴 없거나 이미 미완료면 0
     }
+
 
     // 변경사항 저장 신호 (UserDataPersistenceService가 UserData 전체를 저장하도록 유도)
     private void triggerSave() {
