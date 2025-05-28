@@ -1,0 +1,27 @@
+# ▶ Java 빌드 관련
+/bin/
+out/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# ▶ IntelliJ IDEA 관련
+.idea/
+*.iml
+*.iws
+
+# ▶ 운영체제별 임시 파일
+.DS_Store
+Thumbs.db
+
+# ▶ 환경별 설정 파일 (Optional)
+*.swp
+*.swo
+*.bak
+
+# ▶ Eclipse 프로젝트 흔적 (과거 Eclipse에서 만들었을 경우)
+.project
+.classpath
+.settings/
