@@ -1,3 +1,5 @@
+package gui;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -17,7 +19,7 @@ import java.awt.*;
 public class DefaultSignUpPage {
     public static void main(String[] args) {
         JFrame frame = new JFrame("Sign Up Page");
-        frame.setSize(400, 500);
+        frame.setSize(500, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // centerPanel 생성

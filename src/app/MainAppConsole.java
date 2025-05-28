@@ -1,3 +1,5 @@
+package app;
+
 import account.Account;
 import data.Database;
 import data.UserData;
@@ -11,7 +13,7 @@ import java.util.Scanner;
  * 로그인, 루틴 관리, 경험치 시스템 전반 흐름을 담당
  */
 
-public class MainApp {
+public class MainAppConsole {
     private static final Scanner scanner = new Scanner(System.in);
     private static final Account account = new Account();
 
