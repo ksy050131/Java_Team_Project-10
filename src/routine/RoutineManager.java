@@ -2,6 +2,8 @@ package routine;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
+import java.util.Comparator;
 // UUID는 Routine 클래스 내부에서 사용되므로 RoutineManager에서는 직접적인 UUID 임포트가 필수는 아닐 수 있음
 
 public class RoutineManager {
@@ -54,6 +56,65 @@ public class RoutineManager {
     // 전체 루틴 목록 조회 (기존과 동일)
     public List<Routine> getAllRoutines() {
         return this.routines;
+    }
+
+    // ------------------------------------------------------------
+    // 1) 등록 순 정렬 전체 루틴 목록 조회
+    // ------------------------------------------------------------
+    public List<Routine> getRoutinesSortedByRegister() {
+        // 내부 리스트를 수정하지 않기 위해 복사본을 만든 뒤 정렬
+        List<Routine> sorted = new ArrayList<>(this.routines);
+        // dateCreated는 "yyyy-MM-dd" 형식의 문자열이므로 String.compareTo만으로 날짜 순 오름차순 정렬 가능
+        sorted.sort(Comparator.comparing(Routine::getDateCreated));
+        return sorted;
+    }
+
+    // ------------------------------------------------------------
+    // 2) 완료 여부 순 정렬 전체 루틴 목록 조회
+    //    - 완료된 것들이 먼저, 완료된 것들끼리는 완료 마킹된 날짜(dateMarkedCompleted) 오름차순
+    //    - 그 외(미완료)는 dateCreated 기준 오름차순
+    // ------------------------------------------------------------
+    public List<Routine> getRoutinesSortedByComplete() {
+        List<Routine> sorted = new ArrayList<>(this.routines);
+        sorted.sort((r1, r2) -> {
+            boolean c1 = r1.isCompleted();
+            boolean c2 = r2.isCompleted();
+
+            // 둘 다 완료된 경우 -> dateMarkedCompleted 기준 오름차순
+            if (c1 && c2) {
+                String d1 = r1.getDateMarkedCompleted();
+                String d2 = r2.getDateMarkedCompleted();
+                // null 안전성: 둘 다 null이라면 0, 하나만 null이면 null이 뒤로 가도록 처리
+                if (d1 == null && d2 == null) return 0;
+                if (d1 == null) return 1;
+                if (d2 == null) return -1;
+                return d1.compareTo(d2);
+            }
+            // r1만 완료된 경우 -> r1이 앞으로
+            else if (c1 && !c2) {
+                return -1;
+            }
+            // r2만 완료된 경우 -> r2가 앞으로
+            else if (!c1 && c2) {
+                return 1;
+            }
+            // 둘 다 미완료인 경우 -> dateCreated 기준 오름차순
+            else {
+                return r1.getDateCreated().compareTo(r2.getDateCreated());
+            }
+        });
+        return sorted;
+    }
+
+    // ------------------------------------------------------------
+    // 3) 이름(내용) 순 정렬 전체 루틴 목록 조회
+    //    - content(String) 기준 대소문자 구분 없이 사전식 오름차순
+    // ------------------------------------------------------------
+    public List<Routine> getRoutinesSortedByName() {
+        List<Routine> sorted = new ArrayList<>(this.routines);
+        // String.CASE_INSENSITIVE_ORDER을 사용하면 대소문자 구분 없이 정렬
+        sorted.sort(Comparator.comparing(Routine::getContent, String.CASE_INSENSITIVE_ORDER));
+        return sorted;
     }
 
     // 루틴 내용 수정 (기존과 동일)

@@ -9,6 +9,7 @@ public class Routine {
     private String content;
     private int rewardExp;
     private boolean completed;
+    protected String dateCreated;
     protected String dateMarkedCompleted; // 루틴이 완료된 날짜 (protected로 변경 또는 getter 제공)
     // DailyRoutine에서 접근하거나, JSON에 포함시키기 위함.
 
@@ -18,6 +19,7 @@ public class Routine {
         content = "";
         rewardExp = 0;
         completed = false;
+        dateCreated = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         dateMarkedCompleted = null; // 초기화
     }
 
@@ -42,7 +44,8 @@ public class Routine {
     public int getRewardExp() { return rewardExp; }
     public void setRewardExp(int rewardExp) { this.rewardExp = rewardExp; }
     public boolean isCompleted() { return completed; }
-    public String getDateMarkedCompleted() { return dateMarkedCompleted; } // Getter 추가
+    public String getDateCreated() { return dateCreated; }
+    public String getDateMarkedCompleted() { return dateMarkedCompleted; }
 
     // 핵심 메서드
     public void markAsCompleted() {
