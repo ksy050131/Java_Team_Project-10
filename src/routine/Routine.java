@@ -89,8 +89,6 @@ public class Routine {
                 '}';
     }
 
-
-
     // MongoDB 저장용
     public Document toDocument() {
         return new Document("id", id)
@@ -112,6 +110,4 @@ public class Routine {
         routine.dateMarkedCompleted = doc.getString("dateMarkedCompleted");
         return routine;
     }
-
-
 }
