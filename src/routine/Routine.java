@@ -7,7 +7,7 @@ import java.util.UUID;
 public class Routine {
     private String id;
     private String content;
-    private int rewardExp;
+    private int difficulty;
     private boolean completed;
     protected String dateCreated;
     protected String dateMarkedCompleted; // 루틴이 완료된 날짜 (protected로 변경 또는 getter 제공)
@@ -17,18 +17,18 @@ public class Routine {
     public Routine() {
         id = "";
         content = "";
-        rewardExp = 0;
+        difficulty = 0;
         completed = false;
         dateCreated = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         dateMarkedCompleted = null; // 초기화
     }
 
     // 생성자 - 새 루틴 생성 시 사용
-    public Routine(String content, int rewardExp) {
-        this(); // 기본 생성자 호출 (id, completed, dateMarkedCompleted 등 초기화)
-        this.id = UUID.randomUUID().toString();
+    public Routine(String content, int difficulty) {
+        this();
+        this.id = UUID.randomUUID().toString(); // 고유 ID 자동 생성
         this.content = content;
-        this.rewardExp = rewardExp;
+        this.difficulty = difficulty;
     }
 
     public Routine(String content) {
@@ -38,11 +38,15 @@ public class Routine {
     }
 
     // Getters and Setters
+    // id는 Setter를 만들지 않는 것이 좋습니다 (생성 시 할당).
     public String getId() { return id; }
+
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
-    public int getRewardExp() { return rewardExp; }
-    public void setRewardExp(int rewardExp) { this.rewardExp = rewardExp; }
+
+    public int getDifficulty() { return difficulty; }
+    public void setDifficulty(int difficulty) { this.difficulty = difficulty; }
+
     public boolean isCompleted() { return completed; }
     public String getDateCreated() { return dateCreated; }
     public String getDateMarkedCompleted() { return dateMarkedCompleted; }
@@ -79,7 +83,7 @@ public class Routine {
                 "id='" + id + '\'' +
                 ", content='" + content + '\'' +
                 ", completed=" + completed +
-                ", rewardExp=" + rewardExp +
+                ", difficulty=" + difficulty +
                 (dateMarkedCompleted != null ? ", completedDate=" + dateMarkedCompleted : "") +
                 '}';
     }

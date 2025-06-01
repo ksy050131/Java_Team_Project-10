@@ -36,7 +36,7 @@ public class ExpUser {
         Database.updateUserData(userData);
     }
 
-    // Getter 메서드들 (MainApp 등 외부에서 호출용)
+    // Getter 메서드들 (app.MainApp 등 외부에서 호출용)
     public UserData getUserData() {
         return userData;
     }

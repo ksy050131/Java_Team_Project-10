@@ -1,3 +1,5 @@
+package app;
+
 import account.Account;
 import data.Database;
 import data.UserData;
@@ -5,13 +7,14 @@ import routine.Routine;
 import exp.ExpUser;
 import java.util.List;
 import java.util.Scanner;
+import data.Gemini;
 
 /**
  * 콘솔 기반 실행 메인 흐름 클래스
  * 로그인, 루틴 관리, 경험치 시스템 전반 흐름을 담당
  */
 
-public class MainApp {
+public class MainAppConsole {
     private static final Scanner scanner = new Scanner(System.in);
     private static final Account account = new Account();
 
@@ -109,28 +112,17 @@ public class MainApp {
                         System.out.println("== 루틴 목록 ==");
                         for (Routine r : routines) {
                             System.out.println("[" + (r.isCompleted() ? "✔" : " ") + "] "
-                                    + r.getContent() + " (EXP: " + r.getRewardExp() + ", ID: " + r.getId() + ")");
+                                    + r.getContent() + " (EXP: " + r.getDifficulty() + ", ID: " + r.getId() + ")");
                         }
                     }
                 }
                 case "2" -> {
                     System.out.print("루틴 내용 입력: ");
                     String content = scanner.nextLine();
-                    System.out.print("보상 경험치 입력: ");
-                    int reward = Integer.parseInt(scanner.nextLine());
-                    System.out.print("루틴 종류 입력(1: 일반 루틴 / 2: 매일 반복 루틴): ");
-                    int routineType = Integer.parseInt(scanner.nextLine());
-                    // Routine routine = new Routine(content, reward);
-                    // userData.getRoutines().add(routine);
-                    switch (routineType) {
-                        case 1 -> {
-                            expUser.getRoutineManager().addRoutine(content, reward);
-                        }
-                        case 2 -> {
-                            expUser.getRoutineManager().addDailyRoutine(content, reward);
-                        }
-                        default -> System.out.println("잘못된 종류의 입력입니다.");
-                    }
+                    Gemini gemini = new Gemini();
+                    int difficulty = gemini.getDif(content);
+                    Routine routine = new Routine(content, difficulty);
+                    userData.getRoutines().add(routine);
                 }
                 case "3" -> {
                     List<Routine> routines = userData.getRoutines();
@@ -143,7 +135,7 @@ public class MainApp {
                     System.out.println("== 루틴 목록 ==");
                     for (int i = 0; i < routines.size(); i++) {
                         Routine r = routines.get(i);
-                        System.out.printf("%d. [%s] %s (EXP: %d)\n", i + 1, r.isCompleted() ? "✔" : " ", r.getContent(), r.getRewardExp());
+                        System.out.printf("%d. [%s] %s (EXP: %d)\n", i + 1, r.isCompleted() ? "✔" : " ", r.getContent(), r.getDifficulty());
                     }
 
                     System.out.print("완료할 루틴 번호 선택: ");
@@ -171,15 +163,14 @@ public class MainApp {
                     System.out.println("== 루틴 목록 ==");
                     for (int i = 0; i < routines.size(); i++) {
                         Routine r = routines.get(i);
-                        System.out.printf("%d. [%s] %s (EXP: %d)\n", i + 1, r.isCompleted() ? "✔" : " ", r.getContent(), r.getRewardExp());
+                        System.out.printf("%d. [%s] %s (EXP: %d)\n", i + 1, r.isCompleted() ? "✔" : " ", r.getContent(), r.getDifficulty());
                     }
 
                     System.out.print("삭제할 루틴 번호 선택: ");
                     int choice = Integer.parseInt(scanner.nextLine()) - 1;
                     if (choice >= 0 && choice < routines.size()) {
-                        // routines.remove(choice);
-                        // System.out.println("루틴이 삭제되었습니다.");
-                        expUser.getRoutineManager().deleteRoutine(routines.get(choice).getId());
+                        routines.remove(choice);
+                        System.out.println("루틴이 삭제되었습니다.");
                     } else {
                         System.out.println("잘못된 번호입니다.");
                     }

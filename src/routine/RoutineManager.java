@@ -2,36 +2,43 @@ package routine;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID; // Routine 클래스에서 ID 생성을 위해 사용
+import data.Gemini;
 import java.util.ArrayList;
 import java.util.Comparator;
 // UUID는 Routine 클래스 내부에서 사용되므로 RoutineManager에서는 직접적인 UUID 임포트가 필수는 아닐 수 있음
 
 public class RoutineManager {
 
-    private List<Routine> routines;
-    private Runnable saveUserDataCallback;
+    private List<Routine> routines; // UserData 객체로부터 전달받은 루틴 리스트의 참조
+    private Runnable saveUserDataCallback; // UserData 저장을 트리거할 콜백
 
+    /**
+     * 생성자
+     * @param routines UserData 객체 내의 루틴 리스트
+     * @param saveUserDataCallback 루틴 목록 변경 시 UserData 저장을 호출할 콜백
+     */
     public RoutineManager(List<Routine> routines, Runnable saveUserDataCallback) {
-        this.routines = routines;
+        this.routines = routines; // 외부 리스트를 직접 참조 (UserData와 동기화)
         this.saveUserDataCallback = saveUserDataCallback;
         // 생성 시점에 모든 루틴의 상태를 한 번 업데이트 해주는 것이 좋을 수 있습니다.
         updateAllRoutinesForNewDay();
     }
 
-    // 새 일회성 루틴 추가 (기존 메서드)
-    public Routine addRoutine(String content, int rewardExp) {
-        Routine newRoutine = new Routine(content, rewardExp);
+    // 새 일회성 루틴 추가 (내용과 난이도 사용)
+    public Routine addRoutine(String content, int difficulty) {
+        Routine newRoutine = new Routine(content, difficulty); // Routine 클래스의 생성자 활용
         this.routines.add(newRoutine);
-        triggerSave();
+        triggerSave(); // 변경사항 저장 신호
         System.out.println("새 할 일 '" + content + "' 추가됨 (ID: " + newRoutine.getId() + ")");
         return newRoutine;
     }
 
-    // 새 일회성 루틴 추가 (기존 메서드)
+    // 새 일회성 루틴 추가 (내용만 사용, 난이도는 Routine 클래스의 기본값 사용)
     public Routine addRoutine(String content) {
-        Routine newRoutine = new Routine(content);
+        Routine newRoutine = new Routine(content); // Routine 클래스의 생성자 활용
         this.routines.add(newRoutine);
-        triggerSave();
+        triggerSave(); // 변경사항 저장 신호
         System.out.println("새 할 일 '" + content + "' 추가됨 (ID: " + newRoutine.getId() + ")");
         return newRoutine;
     }
@@ -53,8 +60,10 @@ public class RoutineManager {
                 .findFirst();
     }
 
-    // 전체 루틴 목록 조회 (기존과 동일)
+    // 전체 루틴 목록 조회 (방어적 복사본 반환 고려 가능)
     public List<Routine> getAllRoutines() {
+        // UserData의 리스트를 직접 수정할 수 있게 하려면 원본 반환,
+        // 그렇지 않다면 new ArrayList<>(this.routines)로 복사본 반환
         return this.routines;
     }
 
@@ -130,20 +139,20 @@ public class RoutineManager {
         return false;
     }
 
-    // 루틴 보상 경험치 수정 (기존과 동일)
-    public boolean updateRoutineRewardExp(String id, int newRewardExp) {
+    // 루틴 난이도 수정
+    public boolean updateRoutineDifficulty(String id, int newDifficulty) {
         Optional<Routine> routineOpt = getRoutineById(id);
         if (routineOpt.isPresent()) {
-            routineOpt.get().setRewardExp(newRewardExp);
+            routineOpt.get().setDifficulty(newDifficulty);
             triggerSave();
-            System.out.println("ID '" + id + "' 할 일 보상 경험치 변경됨.");
+            System.out.println("ID '" + id + "' 할 일 난이도 변경됨.");
             return true;
         }
-        System.out.println("오류: ID '" + id + "' 할 일을 찾을 수 없어 보상 경험치를 변경할 수 없습니다.");
+        System.out.println("오류: ID '" + id + "' 할 일을 찾을 수 없어 난이도를 변경할 수 없습니다.");
         return false;
     }
 
-    // 루틴 삭제 (기존과 동일)
+    // 루틴 삭제
     public boolean deleteRoutine(String id) {
         boolean removed = this.routines.removeIf(routine -> routine.getId().equals(id));
         if (removed) {
@@ -155,41 +164,36 @@ public class RoutineManager {
         return removed;
     }
 
-    // 루틴 완료 처리 (기존과 동일 - 다형성에 의해 Routine/DailyRoutine 모두 처리 가능)
+    // 루틴 완료 처리 (난이도 기반 경험치 반환)
     public int completeRoutine(String id) {
         Optional<Routine> routineOpt = getRoutineById(id);
         if (routineOpt.isPresent()) {
             Routine routine = routineOpt.get();
-            if (!routine.isCompleted()) {
-                routine.markAsCompleted(); // 여기서 Routine 또는 DailyRoutine의 markAsCompleted 호출
+            if (!routine.isCompleted()) { // 아직 완료되지 않은 경우에만 처리
+                routine.markAsCompleted();
                 triggerSave();
-                return routine.getRewardExp();
+                return routine.getDifficulty(); // 완료된 루틴의 난이도 값 반환 (경험치처럼 사용)
             } else {
                 System.out.println("할 일 '" + routine.getContent() + "'은(는) 이미 완료되었습니다.");
-                return 0;
+                return 0; // 이미 완료되었으면 0 XP 반환
             }
         }
         System.out.println("오류: ID가 '" + id + "'인 할 일을 찾을 수 없어 완료 처리할 수 없습니다.");
-        return 0;
+        return 0; // 루틴 못 찾으면 0 XP 반환
     }
 
-    // 루틴 미완료 처리 (기존과 동일)
-    public boolean uncompleteRoutine(String id) {
+    // 루틴 완료 취소 (경험치 회수)
+    public int uncompleteRoutine(String id) {
         Optional<Routine> routineOpt = getRoutineById(id);
         if (routineOpt.isPresent()) {
             Routine routine = routineOpt.get();
-            if (routine.isCompleted()) {
+            if (routine.isCompleted()) { // 완료된 경우에만 처리
                 routine.markAsUncompleted();
                 triggerSave();
-                System.out.println("할 일 '" + routine.getContent() + "' 미완료 처리됨.");
-                return true;
-            } else {
-                System.out.println("할 일 '" + routine.getContent() + "'은(는) 이미 미완료 상태입니다.");
-                return false;
+                return -routine.getDifficulty(); // 음수 반환 (경험치 회수)
             }
         }
-        System.out.println("오류: ID가 '" + id + "'인 할 일을 찾을 수 없어 미완료 처리할 수 없습니다.");
-        return false;
+        return 0; // 루틴 없거나 이미 미완료면 0
     }
 
     /**
