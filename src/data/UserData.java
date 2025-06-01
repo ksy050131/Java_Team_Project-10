@@ -35,12 +35,17 @@ public class UserData {
     private int level;
     private int exp;
     private int needExp;
+    private int totalExp;// 총 누적 경험치
+    private int cycle;// 반복 횟수
+
+
+    //칭호
+    private String currentTitle;     // 현재 칭호
+    private List<String> ownedTitles; // 소지 칭호 목록
 
     //루틴 데이터
     private List<Routine> routines;
     private String lastUpdateDate;
-
-
 
     // 기본 생성자
     public UserData() {
@@ -49,7 +54,9 @@ public class UserData {
     // 모든 필드를 초기화하는 생성자
     public UserData(String username, String userId, String phoneNumber,
                     String birthDate, String password, int level,
-                    int exp, int needExp, List<Routine> routines) {
+                    int exp, int needExp, int totalExp, int cycle,
+                    String currentTitle, List<String> ownedTitles,
+                    List<Routine> routines) {
         this.username = username;
         this.userId = userId;
         this.phoneNumber = phoneNumber;
@@ -58,6 +65,10 @@ public class UserData {
         this.level = level;
         this.exp = exp;
         this.needExp = needExp;
+        this.totalExp = totalExp;
+        this.cycle = cycle;
+        this.currentTitle = currentTitle;
+        this.ownedTitles = ownedTitles;
         this.routines = routines;
         this.lastUpdateDate = getCurrentDate();
     }
@@ -89,6 +100,18 @@ public class UserData {
 
     public int getNeedExp() { return needExp; }
     public void setNeedExp(int needExp) { this.needExp = needExp; }
+
+    public int getTotalExp() { return totalExp; }
+    public void setTotalExp(int totalExp) { this.totalExp = totalExp; }
+
+    public int getCycle() { return cycle; }
+    public void setCycle(int cycle) { this.cycle = cycle; }
+
+    public String getCurrentTitle() { return currentTitle; }
+    public void setCurrentTitle(String currentTitle) { this.currentTitle = currentTitle; }
+
+    public List<String> getOwnedTitles() { return ownedTitles; }
+    public void setOwnedTitles(List<String> ownedTitles) { this.ownedTitles = ownedTitles; }
 
     public List<Routine> getRoutines() { return routines; }
     public void setRoutines(List<Routine> routines) { this.routines = routines; }

@@ -19,7 +19,16 @@ public class Gemini {
      * 루틴 설명을 받아 난이도(1~5)를 출력하는 메서드
      */
     public static int getDif(String routine) {
-        String prompt = routine + "이 루틴에 대해서 난이도는 1~5의 범위중에서 골라서 응답으로 숫자 하나만 보내줘";
+        String prompt = routine + "이 루틴에 대해서 난이도는 1~5의 범위중에서 골라서 응답으로 숫자 하나만 보내줘"
+                + "예시:  " +
+                "- 걷기 10분 -> 1  " +
+                "- 매일 30분 조깅 -> 2  " +
+                "- 하루 2시간 강도 높은 운동 -> 4"+
+                "하루 10분 공부 -> 1"+
+                "하루 1시간 집중 공부 -> 3"+
+                "매일 4시간 복잡한 수학 공부 -> 5"+
+                "1분간 암기 -> 1"+
+                "1000시간 독서 -> 5";
 
         try {
             String response = callGeminiApi(prompt).trim();

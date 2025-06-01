@@ -2,6 +2,7 @@ package account;
 
 import data.UserData;
 import data.Database;
+import routine.Routine;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -56,7 +57,22 @@ public class Account {
         }
 
         // 비밀번호 암호화는 encrypt 메서드가 처리
-        UserData newUser = new UserData(username, userId, phoneNumber, birthDate, encrypt(password), 0, 0, 100, new ArrayList<>());
+        UserData newUser = new UserData(
+                username,
+                userId,
+                phoneNumber,
+                birthDate,
+                encrypt(password),
+                1,                          // level
+                0,                          // exp
+                100,                        // needExp
+                0,                          // totalExp
+                0,                          // cycle
+                "",                    // currentTitle
+                new ArrayList<>(),          // ownedTitles
+                new ArrayList<Routine>()   // routines
+        );
+
         List<UserData> allUsers = Database.loadUserData();
         allUsers.add(newUser);
         Database.saveUserData(allUsers);
@@ -79,7 +95,7 @@ public class Account {
     }
     // 비밀번호 변경2 추가예정 (잊어버렸을 때 사용)
 
-    // 아이디찾기 기능(잊어버렸을 때 시용)
+    // 아이디찾기 기능(잊어버렸을 때 사용)
     public String findId(String phoneNumber, String birthDate, String name) {
         return Database.findId(phoneNumber, birthDate, name);
     }
