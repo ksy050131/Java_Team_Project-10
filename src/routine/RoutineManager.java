@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID; // Routine 클래스에서 ID 생성을 위해 사용
 import data.Gemini;
+import java.util.ArrayList;
+import java.util.Comparator;
+// UUID는 Routine 클래스 내부에서 사용되므로 RoutineManager에서는 직접적인 UUID 임포트가 필수는 아닐 수 있음
 
 public class RoutineManager {
 
@@ -18,9 +21,11 @@ public class RoutineManager {
     public RoutineManager(List<Routine> routines, Runnable saveUserDataCallback) {
         this.routines = routines; // 외부 리스트를 직접 참조 (UserData와 동기화)
         this.saveUserDataCallback = saveUserDataCallback;
+        // 생성 시점에 모든 루틴의 상태를 한 번 업데이트 해주는 것이 좋을 수 있습니다.
+        updateAllRoutinesForNewDay();
     }
 
-    // 새 루틴 추가 (내용과 난이도 사용)
+    // 새 일회성 루틴 추가 (내용과 난이도 사용)
     public Routine addRoutine(String content, int difficulty) {
         Routine newRoutine = new Routine(content, difficulty); // Routine 클래스의 생성자 활용
         this.routines.add(newRoutine);
@@ -29,7 +34,7 @@ public class RoutineManager {
         return newRoutine;
     }
 
-    // 새 루틴 추가 (내용만 사용, 난이도는 Routine 클래스의 기본값 사용)
+    // 새 일회성 루틴 추가 (내용만 사용, 난이도는 Routine 클래스의 기본값 사용)
     public Routine addRoutine(String content) {
         Routine newRoutine = new Routine(content); // Routine 클래스의 생성자 활용
         this.routines.add(newRoutine);
@@ -38,7 +43,17 @@ public class RoutineManager {
         return newRoutine;
     }
 
-    // ID로 루틴 조회
+    // 새 일일 루틴 추가
+    public DailyRoutine addDailyRoutine(String content, int rewardExp) {
+        DailyRoutine newDailyRoutine = new DailyRoutine(content, rewardExp);
+        this.routines.add(newDailyRoutine); // List<Routine>에 DailyRoutine 객체 추가 (다형성)
+        triggerSave();
+        System.out.println("새 일일 루틴 '" + content + "' 추가됨 (ID: " + newDailyRoutine.getId() + ")");
+        return newDailyRoutine;
+    }
+
+
+    // ID로 루틴 조회 (기존과 동일)
     public Optional<Routine> getRoutineById(String id) {
         return this.routines.stream()
                 .filter(routine -> routine.getId().equals(id))
@@ -52,7 +67,66 @@ public class RoutineManager {
         return this.routines;
     }
 
-    // 루틴 내용 수정
+    // ------------------------------------------------------------
+    // 1) 등록 순 정렬 전체 루틴 목록 조회
+    // ------------------------------------------------------------
+    public List<Routine> getRoutinesSortedByRegister() {
+        // 내부 리스트를 수정하지 않기 위해 복사본을 만든 뒤 정렬
+        List<Routine> sorted = new ArrayList<>(this.routines);
+        // dateCreated는 "yyyy-MM-dd" 형식의 문자열이므로 String.compareTo만으로 날짜 순 오름차순 정렬 가능
+        sorted.sort(Comparator.comparing(Routine::getDateCreated));
+        return sorted;
+    }
+
+    // ------------------------------------------------------------
+    // 2) 완료 여부 순 정렬 전체 루틴 목록 조회
+    //    - 완료된 것들이 먼저, 완료된 것들끼리는 완료 마킹된 날짜(dateMarkedCompleted) 오름차순
+    //    - 그 외(미완료)는 dateCreated 기준 오름차순
+    // ------------------------------------------------------------
+    public List<Routine> getRoutinesSortedByComplete() {
+        List<Routine> sorted = new ArrayList<>(this.routines);
+        sorted.sort((r1, r2) -> {
+            boolean c1 = r1.isCompleted();
+            boolean c2 = r2.isCompleted();
+
+            // 둘 다 완료된 경우 -> dateMarkedCompleted 기준 오름차순
+            if (c1 && c2) {
+                String d1 = r1.getDateMarkedCompleted();
+                String d2 = r2.getDateMarkedCompleted();
+                // null 안전성: 둘 다 null이라면 0, 하나만 null이면 null이 뒤로 가도록 처리
+                if (d1 == null && d2 == null) return 0;
+                if (d1 == null) return 1;
+                if (d2 == null) return -1;
+                return d1.compareTo(d2);
+            }
+            // r1만 완료된 경우 -> r1이 앞으로
+            else if (c1 && !c2) {
+                return -1;
+            }
+            // r2만 완료된 경우 -> r2가 앞으로
+            else if (!c1 && c2) {
+                return 1;
+            }
+            // 둘 다 미완료인 경우 -> dateCreated 기준 오름차순
+            else {
+                return r1.getDateCreated().compareTo(r2.getDateCreated());
+            }
+        });
+        return sorted;
+    }
+
+    // ------------------------------------------------------------
+    // 3) 이름(내용) 순 정렬 전체 루틴 목록 조회
+    //    - content(String) 기준 대소문자 구분 없이 사전식 오름차순
+    // ------------------------------------------------------------
+    public List<Routine> getRoutinesSortedByName() {
+        List<Routine> sorted = new ArrayList<>(this.routines);
+        // String.CASE_INSENSITIVE_ORDER을 사용하면 대소문자 구분 없이 정렬
+        sorted.sort(Comparator.comparing(Routine::getContent, String.CASE_INSENSITIVE_ORDER));
+        return sorted;
+    }
+
+    // 루틴 내용 수정 (기존과 동일)
     public boolean updateRoutineContent(String id, String newContent) {
         Optional<Routine> routineOpt = getRoutineById(id);
         if (routineOpt.isPresent()) {
@@ -113,7 +187,7 @@ public class RoutineManager {
         Optional<Routine> routineOpt = getRoutineById(id);
         if (routineOpt.isPresent()) {
             Routine routine = routineOpt.get();
-            if (routine.isCompleted()) {
+            if (routine.isCompleted()) { // 완료된 경우에만 처리
                 routine.markAsUncompleted();
                 triggerSave();
                 return -routine.getDifficulty(); // 음수 반환 (경험치 회수)
@@ -122,7 +196,33 @@ public class RoutineManager {
         return 0; // 루틴 없거나 이미 미완료면 0
     }
 
-    // 변경사항 저장 신호 (UserDataPersistenceService가 UserData 전체를 저장하도록 유도)
+    /**
+     * 관리 중인 모든 루틴에 대해 새 날짜 기준으로 상태를 업데이트합니다.
+     * (예: 일일 루틴 초기화)
+     * 이 메서드 호출 후 변경사항이 있을 수 있으므로 저장을 트리거합니다.
+     */
+    public void updateAllRoutinesForNewDay() {
+        boolean changed = false;
+        if (routines == null) return;
+
+        for (Routine routine : routines) {
+            boolean beforeCompleted = routine.isCompleted();
+            String beforeDate = routine.getDateMarkedCompleted();
+
+            routine.P_updateStatusForNewDay(); // 각 루틴의 타입에 맞는 초기화 로직 호출
+
+            // 상태 변경 여부 확인 (단순화된 체크, 실제로는 더 정교한 비교가 필요할 수 있음)
+            if (beforeCompleted != routine.isCompleted() || (beforeDate != null && !beforeDate.equals(routine.getDateMarkedCompleted()))) {
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            triggerSave(); // 상태가 변경된 루틴이 하나라도 있으면 전체 UserData 저장
+            System.out.println("모든 루틴의 새 날짜 기준 상태 업데이트 완료.");
+        }
+    }
+
     private void triggerSave() {
         if (saveUserDataCallback != null) {
             saveUserDataCallback.run();
