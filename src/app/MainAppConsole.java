@@ -5,9 +5,9 @@ import data.Database;
 import data.Gemini;
 import data.UserData;
 import exp.ExpUser;
+import exp.ResetManager;
 import routine.Routine;
 import routine.Routine.RoutineType;
-import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -23,23 +23,17 @@ public class MainAppConsole {
         UserData userData = loginFlow();
         if (userData == null) return;
 
-        try {
-            UserData storedData = Database.findUserDataById(userData.getUserId());
+        UserData storedData = Database.findUserDataById(userData.getUserId());
 
-            if (storedData == null) {
-                List<UserData> allUsers = Database.loadUserData();
-                allUsers.add(userData);
-                Database.saveUserData(allUsers);
-            } else {
-                userData = storedData;
-            }
-
-            routineMenu(userData);
-        } catch (IOException e) {
-            System.out.println("⚠ 사용자 데이터를 불러오거나 저장하는 데 실패했습니다.");
-            e.printStackTrace();
+        if (storedData == null) {
+            List<UserData> allUsers = Database.loadUserData();
+            allUsers.add(userData);
+            Database.saveUserData(allUsers);
+        } else {
+            userData = storedData;
         }
 
+        routineMenu(userData);
         System.out.println("프로그램을 종료합니다.");
     }
 
@@ -91,11 +85,15 @@ public class MainAppConsole {
 
     private static void routineMenu(UserData userData) {
         ExpUser expUser = new ExpUser(userData);
+        ResetManager resetManager = new ResetManager();
         System.out.println("\n환영합니다, " + userData.getUsername() + "님!");
 
         while (true) {
             System.out.println("\n[메인 메뉴]");
             expUser.getExpManager().printStatus();
+            System.out.println("현재 칭호: " + userData.getCurrentTitle());
+            System.out.println("진행 회차: " + userData.getCycle() + "회차");
+            System.out.println("초기화 횟수: " + userData.getLevelResetCount() + "회");
             System.out.println("1. 루틴 목록 보기");
             System.out.println("2. 일반 루틴 추가");
             System.out.println("3. 일일 루틴 추가");
@@ -104,35 +102,38 @@ public class MainAppConsole {
             System.out.println("6. 루틴 삭제");
             System.out.println("7. 비밀번호 변경");
             System.out.println("8. 회원탈퇴");
+            System.out.println("9. 진행 현황 초기화");
             System.out.println("0. 로그아웃");
             System.out.print("선택: ");
             String input = scanner.nextLine();
 
-            try {
-                switch (input) {
-                    case "1" -> showRoutines(expUser);
-                    case "2" -> addRoutine(expUser, RoutineType.NORMAL);
-                    case "3" -> addRoutine(expUser, RoutineType.DAILY);
-                    case "4" -> addRoutine(expUser, RoutineType.STREAK);
-                    case "5" -> completeRoutine(expUser);
-                    case "6" -> deleteRoutine(expUser);
-                    case "7" -> changePassword(expUser);
-                    case "8" -> deleteAccount(expUser);
-                    case "0" -> {
-                        Database.updateUserData(userData);
-                        System.out.println("로그아웃합니다.");
-                        return;
+            switch (input) {
+                case "1" -> showRoutines(expUser);
+                case "2" -> addRoutine(expUser, RoutineType.NORMAL);
+                case "3" -> addRoutine(expUser, RoutineType.DAILY);
+                case "4" -> addRoutine(expUser, RoutineType.STREAK);
+                case "5" -> completeRoutine(expUser);
+                case "6" -> deleteRoutine(expUser);
+                case "7" -> changePassword(expUser);
+                case "8" -> deleteAccount(expUser);
+                case "9" -> {
+                    System.out.println("경고: 모든 진행 현황이 초기화됩니다.");
+                    System.out.print("정말 초기화하시겠습니까? (y/n): ");
+                    if (scanner.nextLine().equalsIgnoreCase("y")) {
+                        resetManager.resetProgress(userData);
                     }
-                    default -> System.out.println("잘못된 입력입니다.");
                 }
-            } catch (IOException e) {
-                System.out.println("데이터 처리 중 오류가 발생했습니다.");
-                e.printStackTrace();
+                case "0" -> {
+                    Database.updateUserData(userData);
+                    System.out.println("로그아웃합니다.");
+                    return;
+                }
+                default -> System.out.println("잘못된 입력입니다.");
             }
         }
     }
 
-    private static void showRoutines(ExpUser expUser) throws IOException {
+    private static void showRoutines(ExpUser expUser) {
         List<Routine> routines = expUser.getUserData().getRoutines();
         if (routines.isEmpty()) {
             System.out.println("\n등록된 루틴이 없습니다.");
@@ -160,7 +161,7 @@ public class MainAppConsole {
         }
     }
 
-    private static void addRoutine(ExpUser expUser, RoutineType type) throws IOException {
+    private static void addRoutine(ExpUser expUser, RoutineType type) {
         System.out.print("\n루틴 내용 입력: ");
         String content = scanner.nextLine();
 
@@ -169,7 +170,8 @@ public class MainAppConsole {
             return;
         }
 
-        int difficulty = new Gemini().getDif(content);
+        Gemini gemini = new Gemini();
+        int difficulty = gemini.getDif(content);
         expUser.getRoutineManager().addRoutine(content, difficulty, type);
 
         String typeName = switch (type) {
@@ -182,7 +184,7 @@ public class MainAppConsole {
         System.out.println("난이도: " + difficulty);
     }
 
-    private static void completeRoutine(ExpUser expUser) throws IOException {
+    private static void completeRoutine(ExpUser expUser) {
         List<Routine> routines = expUser.getUserData().getRoutines();
         if (routines.isEmpty()) {
             System.out.println("\n완료할 루틴이 없습니다.");
@@ -204,7 +206,7 @@ public class MainAppConsole {
         }
     }
 
-    private static void deleteRoutine(ExpUser expUser) throws IOException {
+    private static void deleteRoutine(ExpUser expUser) {
         List<Routine> routines = expUser.getUserData().getRoutines();
         if (routines.isEmpty()) {
             System.out.println("\n삭제할 루틴이 없습니다.");
@@ -229,7 +231,7 @@ public class MainAppConsole {
         }
     }
 
-    private static void changePassword(ExpUser expUser) throws IOException {
+    private static void changePassword(ExpUser expUser) {
         System.out.println("\n[비밀번호 변경]");
         System.out.print("현재 비밀번호: ");
         String oldPassword = scanner.nextLine();
@@ -244,7 +246,7 @@ public class MainAppConsole {
         }
     }
 
-    private static void deleteAccount(ExpUser expUser) throws IOException {
+    private static void deleteAccount(ExpUser expUser) {
         System.out.println("\n[회원 탈퇴]");
         System.out.println("경고: 계정을 삭제하면 모든 데이터가 영구적으로 삭제됩니다.");
         System.out.print("계속하시려면 비밀번호를 입력하세요: ");
