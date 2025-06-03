@@ -2,8 +2,6 @@ package account;
 
 import data.UserData;
 import data.Database;
-import routine.Routine;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -12,19 +10,15 @@ import java.util.Scanner;
 
 public class Account {
     private UserData User;
-
-    // 비밀번호 뒤에 붙일 고정 키 (보안을 강화하는 용도)
     private static final String SECRET_KEY = "MySecretKey123!";
 
     public UserData getUser() {
         return User;
     }
 
-    // 비밀번호 암호화 (비밀번호 뒤에 SECRET_KEY를 붙인 후 SHA-256 해시)
     public String encrypt(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            // 비밀번호 뒤에 SECRET_KEY 붙이기
             String combined = password + SECRET_KEY;
             byte[] hash = md.digest(combined.getBytes());
             StringBuilder hexString = new StringBuilder();
@@ -38,7 +32,6 @@ public class Account {
         return null;
     }
 
-    // 로그인
     public boolean login(String userId, String password) {
         UserData user = Database.findUserDataById(userId);
         if (user != null && user.getPassword().equals(encrypt(password))) {
@@ -49,30 +42,13 @@ public class Account {
         return false;
     }
 
-    // 회원가입
     public boolean register(String username, String userId, String password, String phoneNumber, String birthDate) {
         if (Database.isUserExists(userId)) {
             System.out.println("이미 존재하는 아이디입니다.");
             return false;
         }
 
-        // 비밀번호 암호화는 encrypt 메서드가 처리
-        UserData newUser = new UserData(
-                username,
-                userId,
-                phoneNumber,
-                birthDate,
-                encrypt(password),
-                1,                          // level
-                0,                          // exp
-                100,                        // needExp
-                0,                          // totalExp
-                0,                          // cycle
-                "",                    // currentTitle
-                new ArrayList<>(),          // ownedTitles
-                new ArrayList<Routine>()   // routines
-        );
-
+        UserData newUser = new UserData(username, userId, phoneNumber, birthDate, encrypt(password), 0, 0, 100, new ArrayList<>());
         List<UserData> allUsers = Database.loadUserData();
         allUsers.add(newUser);
         Database.saveUserData(allUsers);
@@ -81,7 +57,6 @@ public class Account {
         return true;
     }
 
-    // 비밀번호 변경1
     public boolean changePassword(String userId, String oldPassword, String newPassword) {
         UserData user = Database.findUserDataById(userId);
         if (user != null && user.getPassword().equals(encrypt(oldPassword))) {
@@ -93,14 +68,11 @@ public class Account {
         System.out.println("현재 비밀번호가 잘못되었습니다.");
         return false;
     }
-    // 비밀번호 변경2 추가예정 (잊어버렸을 때 사용)
 
-    // 아이디찾기 기능(잊어버렸을 때 사용)
     public String findId(String phoneNumber, String birthDate, String name) {
         return Database.findId(phoneNumber, birthDate, name);
     }
 
-    // 회원탈퇴
     public boolean deleteAccount(String userId, String password) {
         UserData user = Database.findUserDataById(userId);
         if (user != null && user.getPassword().equals(encrypt(password))) {
@@ -114,7 +86,6 @@ public class Account {
         return false;
     }
 
-    // 기능 테스트
     public void start() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -192,3 +163,4 @@ public class Account {
         }
     }
 }
+

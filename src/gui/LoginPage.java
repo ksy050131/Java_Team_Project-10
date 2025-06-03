@@ -1,76 +1,56 @@
 package gui;
 
+import app.MainAppGUI;
+import data.UserData;
+import account.Account;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import account.Account;
-import data.UserData;
-import app.MainAppGUI; // MainUI와 연결되는 클래스
+import java.awt.event.ActionListener;
 
-public class LoginPage {
-    private JFrame frame;
+public class LoginPage extends JFrame {
     private JTextField idField;
     private JPasswordField passwordField;
 
     public LoginPage() {
-        frame = new JFrame("Login");
-        frame.setSize(400, 300);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("루틴 코치 - 로그인");
+        setSize(400, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new GridLayout(3, 2));
 
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        add(new JLabel("아이디:"));
+        idField = new JTextField();
+        add(idField);
 
-        JLabel idLabel = new JLabel("아이디:");
-        idField = new JTextField(15);
+        add(new JLabel("비밀번호:"));
+        passwordField = new JPasswordField();
+        add(passwordField);
 
-        JLabel pwLabel = new JLabel("비밀번호:");
-        passwordField = new JPasswordField(15);
+        JButton loginButton = new JButton("로그인");
+        loginButton.addActionListener(new LoginListener());
+        add(loginButton);
 
-        JButton loginBtn = new JButton("로그인");
-        JButton signUpBtn = new JButton("회원가입");
-
-        // 배치
-        gbc.gridx = 0; gbc.gridy = 0; panel.add(idLabel, gbc);
-        gbc.gridx = 1; panel.add(idField, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 1; panel.add(pwLabel, gbc);
-        gbc.gridx = 1; panel.add(passwordField, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel.add(loginBtn, gbc);
-
-        gbc.gridy = 3;
-        panel.add(signUpBtn, gbc);
-
-        frame.add(panel);
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-
-        // 이벤트 연결
-        loginBtn.addActionListener(this::handleLogin);
-        signUpBtn.addActionListener(e -> {
-            frame.dispose();
-            new SignUpPage().show(); // 회원가입 화면으로 이동
+        JButton signUpButton = new JButton("회원가입");
+        signUpButton.addActionListener(e -> {
+            SignUpPage signUpPage = new SignUpPage();
+            signUpPage.setVisible(true); // setVisible 호출
+            dispose();
         });
+        add(signUpButton);
     }
 
-    private void handleLogin(ActionEvent e) {
-        String id = idField.getText();
-        String pw = new String(passwordField.getPassword());
+    private class LoginListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String userId = idField.getText();
+            String password = new String(passwordField.getPassword());
 
-        Account account = MainAppGUI.getAccount();
-        if (account.login(id, pw)) {
-            UserData user = account.getUser();
-            frame.dispose();
-            MainAppGUI.loginSuccess(user);  // loginSuccess()에서 로그인 성공 시 MainUI 실행
-        } else {
-            JOptionPane.showMessageDialog(frame, "로그인 실패");
+            if (MainAppGUI.getAccount().login(userId, password)) {
+                MainAppGUI.loginSuccess(MainAppGUI.getAccount().getUser());
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(LoginPage.this, "로그인 실패");
+            }
         }
-    }
-
-    public void show() {
-        frame.setVisible(true);
     }
 }
