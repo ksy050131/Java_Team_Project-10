@@ -23,22 +23,16 @@ public class MainAppConsole {
         UserData userData = loginFlow();
         if (userData == null) return;
 
-        try {
-            UserData storedData = Database.findUserDataById(userData.getUserId());
+        UserData storedData = Database.findUserDataById(userData.getUserId());
 
-            if (storedData == null) {
-                List<UserData> allUsers = Database.loadUserData();
-                allUsers.add(userData);
-                Database.saveUserData(allUsers);
-            } else {
-                userData = storedData;
-            }
-
-            routineMenu(userData);
-        } catch (IOException e) {
-            System.out.println("⚠ 사용자 데이터를 불러오거나 저장하는 데 실패했습니다.");
-            e.printStackTrace();
+        if (storedData == null) {
+            List<UserData> allUsers = Database.loadUserData();
+            allUsers.add(userData);
+            Database.saveUserData(allUsers);
+        } else {
+            userData = storedData;
         }
+        routineMenu(userData);
 
         System.out.println("프로그램을 종료합니다.");
     }

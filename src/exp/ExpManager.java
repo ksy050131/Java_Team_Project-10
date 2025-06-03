@@ -35,6 +35,8 @@ public class ExpManager {
 
         // 경험치 추가
         userData.setExp(userData.getExp() + finalExp);
+        // 경험치 routine 클래스에 저장 (추후 차감 시에 반영하기 위해)
+        routine.setLastGainedExp(finalExp);
 
         System.out.printf(
                 "[+] %d EXP = [기본 %d + 랜덤 보너스 %.0f%% + 스트릭 보너스 %d] × 난이도 가중치 %.1f\n",
@@ -46,6 +48,32 @@ public class ExpManager {
         );
 
         checkLevelUp();
+    }
+
+    // 루틴 완료 취소 시 exp 차감을 위한 메소드
+    public void removeExpFromRoutine(Routine routine) {
+        int expToRemove = routine.getLastGainedExp();
+        userData.setExp(Math.max(0, userData.getExp() - expToRemove));
+        System.out.printf("[-] %d EXP 차감 (완료 취소)\n", expToRemove);
+
+        // 레벨 하락 처리
+        while (userData.getExp() < 0 && userData.getLevel() > 1) {
+            levelDown();
+        }
+
+        // 음수 경험치는 0으로 보정
+        if (userData.getExp() < 0) {
+            userData.setExp(0);
+        }
+    }
+
+    private void levelDown() {
+        userData.setLevel(userData.getLevel() - 1);
+        userData.setNeedExp(calculateNextNeedExp(userData.getLevel()));
+        // 경험치는 레벨업 시 차감됐던 만큼 다시 채워줌
+        userData.setExp(userData.getNeedExp() + userData.getExp());
+        System.out.printf("🔻 레벨 다운! Lv.%d (필요 EXP: %d)\n",
+                userData.getLevel(), userData.getNeedExp());
     }
 
     private void checkLevelUp() {

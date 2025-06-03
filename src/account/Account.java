@@ -48,7 +48,21 @@ public class Account {
             return false;
         }
 
-        UserData newUser = new UserData(username, userId, phoneNumber, birthDate, encrypt(password), 0, 0, 100, new ArrayList<>());
+        UserData newUser = new UserData(
+                username,               // String
+                userId,                 // String
+                phoneNumber,            // String
+                birthDate,              // String
+                encrypt(password),      // String
+                0,                      // level (int)
+                0,                      // exp (int)
+                100,                    // needExp (int)
+                0,                      // totalExp (int) ← 여기가 빠져있음
+                0,                      // cycle (int) ← 여기가 빠져있음
+                "",                     // currentTitle (String) ← 여기가 빠져있음
+                new ArrayList<>(),       // ownedTitles (List<String>)
+                new ArrayList<>()        // routines (List<Routine>)
+        );
         List<UserData> allUsers = Database.loadUserData();
         allUsers.add(newUser);
         Database.saveUserData(allUsers);
