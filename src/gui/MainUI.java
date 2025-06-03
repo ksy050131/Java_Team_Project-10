@@ -9,6 +9,8 @@ import routine.Routine;
 import routine.RoutineManager;
 import data.Database;
 import exp.ExpManager;
+import chart.ChartDisplayFrame; // ChartDisplayFrame 임포트 (유지)
+import java.util.ArrayList; // UserData의 routines가 null일 경우 대비
 
 public class MainUI {
     private JFrame frame; // 메인 프레임
@@ -21,7 +23,11 @@ public class MainUI {
 
     public MainUI(UserData user) {
         this.user = user;
-        this.routineManager = new RoutineManager(user.getRoutines(), () -> Database.updateUserData(user));
+        // UserData의 getRoutines()가 null을 반환할 경우를 대비하여 빈 리스트로 초기화
+        this.routineManager = new RoutineManager(
+                user.getRoutines() != null ? user.getRoutines() : new ArrayList<>(),
+                () -> Database.updateUserData(user) // Database.updateUserData는 static 메서드이거나, Database 인스턴스 필요
+        );
         this.expManager = new ExpManager(user);
 
         // 프레임 초기화 및 종료 시 저장 처리
@@ -88,6 +94,17 @@ public class MainUI {
         buttonPanel.add(addButton);
         buttonPanel.add(Box.createVerticalStrut(10));
 
+        // "통계 보기" 버튼 추가 (원본 버튼 패널 스타일에 맞춤)
+        JButton viewStatsButton = new JButton("View Statistics");
+        // viewStatsButton.setFont(new Font("Malgun Gothic", Font.PLAIN, 12)); // 원본에 폰트 설정은 없었음
+        viewStatsButton.setAlignmentX(Component.CENTER_ALIGNMENT); // 원본 스타일
+        viewStatsButton.addActionListener(e -> {
+            showStatisticsChart();
+        });
+        buttonPanel.add(viewStatsButton);
+        // buttonPanel.add(Box.createVerticalStrut(10)); // 통계 버튼 다음 간격 (선택 사항)
+
+
         centerPanel.add(buttonPanel);
         centerPanel.add(Box.createVerticalGlue());
         frame.add(centerPanel, BorderLayout.CENTER);
@@ -135,6 +152,11 @@ public class MainUI {
         deleteBtn.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(frame, "정말 삭제하시겠습니까?", "삭제 확인", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
+                if (routine.isCompleted()) {
+                    // 이미 완료된 루틴 삭제 시 경험치 처리 (원본 코드에는 이 로직 없음)
+                    // int recoveredExp = routineManager.uncompleteRoutine(routine.getId());
+                    // expManager.addExp(recoveredExp);
+                }
                 routineManager.deleteRoutine(routine.getId());
                 routinePanel.remove(itemPanel);
                 routinePanel.revalidate();
@@ -156,6 +178,18 @@ public class MainUI {
         expBar.setMaximum(user.getNeedExp());
         expBar.setValue(user.getExp());
         expBar.setString(user.getExp() + " / " + user.getNeedExp());
+    }
+
+    // --- 차트 보기 메서드 (유지) ---
+    private void showStatisticsChart() {
+        if (this.user == null) {
+            JOptionPane.showMessageDialog(this.frame, "사용자 데이터가 로드되지 않았습니다.", "오류", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        SwingUtilities.invokeLater(() -> {
+            ChartDisplayFrame chartFrame = new ChartDisplayFrame(this.user);
+            chartFrame.setVisible(true);
+        });
     }
 
     // 화면 보이기 메서드
