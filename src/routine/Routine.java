@@ -66,7 +66,8 @@ public class Routine {
                 .append("difficulty", difficulty)
                 .append("completed", completed)
                 .append("dateCreated", dateCreated)
-                .append("dateMarkedCompleted", dateMarkedCompleted);
+                .append("dateMarkedCompleted", dateMarkedCompleted)
+                .append("lastGainedExp", lastGainedExp);
     }
 
     // fromDocument에서 타입에 따라 하위 클래스로 분기
