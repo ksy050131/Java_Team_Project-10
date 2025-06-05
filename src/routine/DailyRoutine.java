@@ -1,23 +1,82 @@
 package routine;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import org.bson.Document;
 
 public class DailyRoutine extends Routine {
+    private int streakCount;
 
-    // DailyRoutine을 위한 특정 필드가 필요하다면 여기에 추가할 수 있지만,
-    // 현재로서는 부모 클래스의 필드와 메서드, 그리고 아래의 초기화 로직으로 충분할 수 있습니다.
-
-    // 생성자
-    public DailyRoutine(String content, int rewardExp) {
-        super(content, rewardExp); // 부모 클래스의 생성자 호출
-        // DailyRoutine 생성 시 특별히 초기화할 내용이 있다면 여기에 추가
-    }
-
-    // Gson 등 JSON 라이브러리가 역직렬화 시 타입을 구분하고 올바르게 객체를 생성하기 위해
-    // 기본 생성자가 필요할 수 있으며, 이 경우 부모의 기본 생성자도 호출됩니다.
+    // 기본 생성자 (역직렬화 및 자바 리플렉션용)
     public DailyRoutine() {
         super();
+        this.streakCount = 0;
+    }
+
+    // 기존 생성자
+    public DailyRoutine(String content, int difficulty) {
+        super(content, difficulty);
+        this.streakCount = 0;
+    }
+
+    public int getStreakCount() { return streakCount; }
+    public void setStreakCount(int streakCount) { this.streakCount = streakCount; }
+
+    @Override
+    public void markAsCompleted() {
+        if (completed) return;
+
+        completed = true;
+        String today = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date lastDate = dateMarkedCompleted == null ? null : sdf.parse(dateMarkedCompleted);
+            Date todayDate = sdf.parse(today);
+
+            if (lastDate != null) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(lastDate);
+                cal.add(Calendar.DATE, 1);
+                Date nextDay = cal.getTime();
+
+                if (sdf.format(nextDay).equals(today)) {
+                    streakCount++;
+                } else if (!sdf.format(lastDate).equals(today)) {
+                    streakCount = 1;
+                }
+            } else {
+                streakCount = 1;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        dateMarkedCompleted = today;
+
+        System.out.println("✔ " + content + " 완료!");
+    }
+
+    @Override
+    public Document toDocument() {
+        // 상위 클래스의 toDocument 호출 후 추가 필드를 붙임
+        Document doc = super.toDocument();
+        doc.put("type", "DailyRoutine");
+        doc.append("streakCount", streakCount);
+        return doc;
+    }
+
+    public static DailyRoutine fromDocument(Document doc) {
+        DailyRoutine dr = new DailyRoutine();
+        dr.id = doc.getString("id");
+        dr.content = doc.getString("content");
+        dr.difficulty = doc.getInteger("difficulty", 0);
+        dr.completed = doc.getBoolean("completed", false);
+        dr.dateCreated = doc.getString("dateCreated");
+        dr.dateMarkedCompleted = doc.getString("dateMarkedCompleted");
+        dr.lastGainedExp = doc.getInteger("lastGainedExp", 0);
+        dr.streakCount = doc.getInteger("streakCount", 0);
+        return dr;
     }
 
     /**
@@ -35,4 +94,6 @@ public class DailyRoutine extends Routine {
         // 만약 어제 완료하지 못하고 오늘이 되었다면, 그냥 미완료 상태로 남아있게 됩니다.
         // (dateMarkedCompleted가 null이거나, isCompleted()가 false인 경우)
     }
+
+
 }
