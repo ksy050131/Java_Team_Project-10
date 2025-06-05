@@ -78,6 +78,16 @@ public class RoutineManager {
         return sorted;
     }
 
+    // 루틴 추가 메소드
+    public Routine addRoutine(String content, int difficulty, Routine.RoutineType type) {
+        Routine newRoutine = new Routine(content, difficulty, type);
+        this.routines.add(newRoutine);
+        triggerSave();
+        System.out.println("새 할 일 '" + content + "' 추가됨 (ID: " + newRoutine.getId() + ")");
+        return newRoutine;
+    }
+
+
     // ------------------------------------------------------------
     // 2) 완료 여부 순 정렬 전체 루틴 목록 조회
     //    - 완료된 것들이 먼저, 완료된 것들끼리는 완료 마킹된 날짜(dateMarkedCompleted) 오름차순

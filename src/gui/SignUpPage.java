@@ -2,106 +2,136 @@ package gui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import account.Account;
 import app.MainAppGUI;
 
-public class SignUpPage {
-    private JFrame frame;
+public class SignUpPage extends JFrame {
+    private JTextField nameField;
+    private JTextField idField;
+    private JPasswordField pwField;
+    private JTextField phoneField;
+    private JTextField birthField;
 
     public SignUpPage() {
-        this.frame = new JFrame("Sign Up Page");
-        frame.setSize(500, 600);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("루틴 코치 - 회원가입");
+        setSize(500, 400);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new GridLayout(7, 2, 10, 10)); // 7행 2열, 간격 추가
 
-        // centerPanel
-        JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        // 패딩 설정
+        JPanel contentPane = new JPanel();
+        contentPane.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        contentPane.setLayout(new GridLayout(7, 2, 10, 10));
+        setContentPane(contentPane);
 
-        // 제목
-        JLabel title = new JLabel("회원가입", SwingConstants.CENTER);
-        title.setFont(new Font("Arial", Font.BOLD, 20));
-        title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        centerPanel.add(Box.createVerticalStrut(10));
-        centerPanel.add(title);
-        centerPanel.add(Box.createVerticalStrut(20));
+        // 이름 필드
+        add(new JLabel("이름:"));
+        nameField = new JTextField();
+        add(nameField);
 
-        // 입력 폼
-        JPanel formPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        // 아이디 필드
+        add(new JLabel("아이디:"));
+        idField = new JTextField();
+        add(idField);
 
-        // 필드 선언
-        JTextField nameField = new JTextField(15);
-        JTextField idField = new JTextField(15);
-        JPasswordField pwField = new JPasswordField(15);
-        JTextField phoneField = new JTextField(15);
-        JTextField birthField = new JTextField(15); // YYYY-MM-DD
+        // 비밀번호 필드
+        add(new JLabel("비밀번호:"));
+        pwField = new JPasswordField();
+        add(pwField);
 
-        // 이름
-        gbc.gridx = 0; gbc.gridy = 0; gbc.anchor = GridBagConstraints.WEST;
-        formPanel.add(new JLabel("이름:"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(nameField, gbc);
+        // 전화번호 필드
+        add(new JLabel("전화번호:"));
+        phoneField = new JTextField();
+        add(phoneField);
 
-        // 아이디
-        gbc.gridx = 0; gbc.gridy++;
-        formPanel.add(new JLabel("아이디:"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(idField, gbc);
+        // 생년월일 필드
+        add(new JLabel("생년월일 (YYYY-MM-DD):"));
+        birthField = new JTextField();
+        add(birthField);
 
-        // 비밀번호
-        gbc.gridx = 0; gbc.gridy++;
-        formPanel.add(new JLabel("비밀번호:"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(pwField, gbc);
+        // 빈 레이블 (공간 확보)
+        add(new JLabel());
+        add(new JLabel());
 
-        // 전화번호
-        gbc.gridx = 0; gbc.gridy++;
-        formPanel.add(new JLabel("전화번호:"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(phoneField, gbc);
+        // 가입하기 버튼
+        JButton signUpButton = new JButton("가입하기");
+        signUpButton.setBackground(new Color(70, 130, 180)); // 파란색
+        signUpButton.setForeground(Color.WHITE);
+        signUpButton.addActionListener(new SignUpListener());
+        add(signUpButton);
 
-        // 생년월일
-        gbc.gridx = 0; gbc.gridy++;
-        formPanel.add(new JLabel("생년월일 (YYYY-MM-DD):"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(birthField, gbc);
+        // 취소 버튼
+        JButton cancelButton = new JButton("취소");
+        cancelButton.setBackground(new Color(220, 20, 60)); // 빨간색
+        cancelButton.setForeground(Color.WHITE);
+        cancelButton.addActionListener(e -> {
+            new LoginPage().setVisible(true);
+            dispose();
+        });
+        add(cancelButton);
+    }
 
-        // 회원가입 버튼
-        JButton registerBtn = new JButton("회원가입");
-        gbc.gridx = 0; gbc.gridy++; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.CENTER;
-        formPanel.add(registerBtn, gbc);
-
-        centerPanel.add(formPanel);
-        frame.add(centerPanel, BorderLayout.CENTER);
-
-        // 버튼 클릭 이벤트
-        registerBtn.addActionListener(e -> {
+    // 회원가입 처리 리스너
+    private class SignUpListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // 필드 값 추출
             String name = nameField.getText().trim();
             String id = idField.getText().trim();
             String pw = new String(pwField.getPassword()).trim();
             String phone = phoneField.getText().trim();
             String birth = birthField.getText().trim();
 
-            if (name.isEmpty() || id.isEmpty() || pw.isEmpty() || phone.isEmpty() || birth.isEmpty()) {
-                JOptionPane.showMessageDialog(frame, "모든 필드를 입력해주세요.");
+            // 유효성 검사
+            if (name.isEmpty() || id.isEmpty() || pw.isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        SignUpPage.this,
+                        "이름, 아이디, 비밀번호는 필수 입력 항목입니다.",
+                        "입력 오류",
+                        JOptionPane.WARNING_MESSAGE
+                );
                 return;
             }
 
+            // 생년월일 형식 검사 (간단한 버전)
+            if (!birth.isEmpty() && !birth.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                JOptionPane.showMessageDialog(
+                        SignUpPage.this,
+                        "생년월일은 YYYY-MM-DD 형식으로 입력해주세요.",
+                        "입력 오류",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+
+            // 회원가입 시도
             Account account = MainAppGUI.getAccount();
             boolean success = account.register(name, id, pw, phone, birth);
-            if (success) {
-                JOptionPane.showMessageDialog(frame, "회원가입 성공! 로그인 화면으로 이동합니다.");
-                frame.dispose();
-                new LoginPage().show();
-            } else {
-                JOptionPane.showMessageDialog(frame, "회원가입 실패: 아이디 중복 또는 입력 오류.");
-            }
-        });
-    }
 
-    public void show() {
-        frame.setVisible(true);
+            // 결과 처리
+            if (success) {
+                JOptionPane.showMessageDialog(
+                        SignUpPage.this,
+                        "회원가입 성공!\n로그인 화면으로 이동합니다.",
+                        "가입 완료",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
+                // 로그인 화면으로 전환
+                SwingUtilities.invokeLater(() -> {
+                    new LoginPage().setVisible(true);
+                    dispose();
+                });
+            } else {
+                JOptionPane.showMessageDialog(
+                        SignUpPage.this,
+                        "회원가입 실패:\n이미 사용 중인 아이디이거나 입력 정보가 잘못되었습니다.",
+                        "가입 실패",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        }
     }
 }
