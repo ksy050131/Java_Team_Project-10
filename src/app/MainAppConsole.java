@@ -5,8 +5,8 @@ import data.Database;
 import data.Gemini;
 import data.UserData;
 import exp.ExpUser;
+import routine.DailyRoutine;
 import routine.Routine;
-import routine.Routine.RoutineType;
 import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
@@ -93,11 +93,10 @@ public class MainAppConsole {
             System.out.println("1. 루틴 목록 보기");
             System.out.println("2. 일반 루틴 추가");
             System.out.println("3. 일일 루틴 추가");
-            System.out.println("4. 연속 완료 루틴 추가");
-            System.out.println("5. 루틴 완료 처리");
-            System.out.println("6. 루틴 삭제");
-            System.out.println("7. 비밀번호 변경");
-            System.out.println("8. 회원탈퇴");
+            System.out.println("4. 루틴 완료 처리");
+            System.out.println("5. 루틴 삭제");
+            System.out.println("6. 비밀번호 변경");
+            System.out.println("7. 회원탈퇴");
             System.out.println("0. 로그아웃");
             System.out.print("선택: ");
             String input = scanner.nextLine();
@@ -105,13 +104,12 @@ public class MainAppConsole {
             try {
                 switch (input) {
                     case "1" -> showRoutines(expUser);
-                    case "2" -> addRoutine(expUser, RoutineType.NORMAL);
-                    case "3" -> addRoutine(expUser, RoutineType.DAILY);
-                    case "4" -> addRoutine(expUser, RoutineType.STREAK);
-                    case "5" -> completeRoutine(expUser);
-                    case "6" -> deleteRoutine(expUser);
-                    case "7" -> changePassword(expUser);
-                    case "8" -> deleteAccount(expUser);
+                    case "2" -> addRoutine(expUser);
+                    case "3" -> addDailyRoutine(expUser);
+                    case "4" -> completeRoutine(expUser);
+                    case "5" -> deleteRoutine(expUser);
+                    case "6" -> changePassword(expUser);
+                    case "7" -> deleteAccount(expUser);
                     case "0" -> {
                         Database.updateUserData(userData);
                         System.out.println("로그아웃합니다.");
@@ -137,24 +135,20 @@ public class MainAppConsole {
         System.out.println("--------------------------------------------");
         for (int i = 0; i < routines.size(); i++) {
             Routine r = routines.get(i);
-            String type = switch (r.getType()) {
-                case DAILY -> "[일일]";
-                case STREAK -> "[연속]";
-                default -> "[일반]";
-            };
+            String type = (r instanceof DailyRoutine) ? "[일일]" : "[일반]";
             System.out.printf("%d. %s %s (난이도: %d)\n",
                     i + 1, type, r.getContent(), r.getDifficulty());
             System.out.printf("   상태: %s | ID: %s\n",
                     r.isCompleted() ? "완료" : "미완료", r.getId());
 
-            if (r.getType() == RoutineType.STREAK) {
-                System.out.printf("   연속 완료: %d일\n", r.getStreakCount());
+            if (r instanceof DailyRoutine dr) {
+                System.out.printf("   연속 완료: %d일\n", dr.getStreakCount());
             }
             System.out.println("--------------------------------------------");
         }
     }
 
-    private static void addRoutine(ExpUser expUser, RoutineType type) throws IOException {
+    private static void addRoutine(ExpUser expUser) throws IOException {
         System.out.print("\n루틴 내용 입력: ");
         String content = scanner.nextLine();
 
@@ -164,15 +158,25 @@ public class MainAppConsole {
         }
 
         int difficulty = new Gemini().getDif(content);
-        expUser.getRoutineManager().addRoutine(content, difficulty, type);
+        expUser.getRoutineManager().addRoutine(content, difficulty);
 
-        String typeName = switch (type) {
-            case DAILY -> "일일";
-            case STREAK -> "연속 완료";
-            default -> "일반";
-        };
+        System.out.println("\n일반 루틴이 추가되었습니다!");
+        System.out.println("난이도: " + difficulty);
+    }
 
-        System.out.println("\n" + typeName + " 루틴이 추가되었습니다!");
+    private static void addDailyRoutine(ExpUser expUser) throws IOException {
+        System.out.print("\n루틴 내용 입력: ");
+        String content = scanner.nextLine();
+
+        if (content.isBlank()) {
+            System.out.println("루틴 내용은 비울 수 없습니다.");
+            return;
+        }
+
+        int difficulty = new Gemini().getDif(content);
+        expUser.getRoutineManager().addDailyRoutine(content, difficulty);
+
+        System.out.println("\n일일 루틴이 추가되었습니다!");
         System.out.println("난이도: " + difficulty);
     }
 

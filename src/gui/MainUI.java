@@ -2,10 +2,11 @@ package gui;
 
 import app.MainAppGUI;
 import data.Database;
+import data.Gemini;
 import data.UserData;
 import exp.ExpManager;
+import routine.DailyRoutine;
 import routine.Routine;
-import routine.Routine.RoutineType;
 import routine.RoutineManager;
 
 import javax.swing.*;
@@ -128,16 +129,16 @@ public class MainUI extends JFrame {
 
         // 루틴 추가 버튼 3종 (일반, 일일, 연속)
         JButton addNormalBtn = new JButton("일반 루틴 추가");
-        addNormalBtn.addActionListener(e -> addRoutine(RoutineType.NORMAL));
+        addNormalBtn.addActionListener(e -> addRoutine());
         bottomPanel.add(addNormalBtn);
 
         JButton addDailyBtn = new JButton("일일 루틴 추가");
-        addDailyBtn.addActionListener(e -> addRoutine(RoutineType.DAILY));
+        addDailyBtn.addActionListener(e -> addDailyRoutine());
         bottomPanel.add(addDailyBtn);
 
-        JButton addStreakBtn = new JButton("연속 루틴 추가");
-        addStreakBtn.addActionListener(e -> addRoutine(RoutineType.STREAK));
-        bottomPanel.add(addStreakBtn);
+//        JButton addStreakBtn = new JButton("연속 루틴 추가");
+//        addStreakBtn.addActionListener(e -> addRoutine(RoutineType.STREAK));
+//        bottomPanel.add(addStreakBtn);
 
         // 정렬 버튼 3종 (이름순, 완료순, 등록일순)
         JButton sortByNameBtn = new JButton("이름순 정렬");
@@ -186,17 +187,13 @@ public class MainUI extends JFrame {
     private void updateRoutineList(List<Routine> routines) {
         tableModel.setRowCount(0); // 기존 테이블 내용 제거
         for (Routine routine : routines) {
-            String typeStr = switch (routine.getType()) {
-                case DAILY -> "[일일]";
-                case STREAK -> "[연속]";
-                default -> "[일반]";
-            };
+            String typeStr = (routine instanceof DailyRoutine) ? "[일일]" : "[일반]";
             Object[] rowData = {
                     routine.isCompleted(),
                     typeStr,
                     routine.getContent(),
                     routine.getDifficulty(),
-                    routine.getType() == RoutineType.STREAK ? routine.getStreakCount() : "",
+                    (routine instanceof DailyRoutine) ? ((DailyRoutine)routine).getStreakCount() : "",
                     routine.getId()  // 숨겨진 ID 컬럼 (식별용)
             };
             tableModel.addRow(rowData);
@@ -204,11 +201,21 @@ public class MainUI extends JFrame {
     }
 
     // 루틴 추가 다이얼로그 후 추가 처리
-    private void addRoutine(RoutineType type) {
+    private void addRoutine() {
         String content = JOptionPane.showInputDialog(this, "루틴 내용을 입력하세요:");
         if (content != null && !content.trim().isEmpty()) {
-            int difficulty = 3; // 기본 난이도, 필요 시 수정 가능
-            routineManager.addRoutine(content, difficulty, type);
+            int difficulty = new Gemini().getDif(content);
+            routineManager.addRoutine(content, difficulty);
+            updateRoutineList();
+            saveUserData();
+        }
+    }
+
+    private void addDailyRoutine() {
+        String content = JOptionPane.showInputDialog(this, "루틴 내용을 입력하세요:");
+        if (content != null && !content.trim().isEmpty()) {
+            int difficulty = new Gemini().getDif(content);
+            routineManager.addDailyRoutine(content, difficulty);
             updateRoutineList();
             saveUserData();
         }

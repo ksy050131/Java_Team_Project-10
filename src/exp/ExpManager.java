@@ -1,6 +1,7 @@
 package exp;
 
 import data.UserData;
+import routine.DailyRoutine;
 import routine.Routine;
 import java.util.Random;
 
@@ -21,10 +22,10 @@ public class ExpManager {
         int expWithBonus = (int) Math.round(baseExp * randomBonus);
 
         // 3. STREAK 보너스 적용
-        if (routine.getType() == Routine.RoutineType.STREAK) {
-            if (routine.getStreakCount() >= 7) {
+        if (routine instanceof DailyRoutine dr) {
+            if (dr.getStreakCount() >= 7) {
                 expWithBonus += 50;
-            } else if (routine.getStreakCount() >= 3) {
+            } else if (dr.getStreakCount() >= 3) {
                 expWithBonus += 20;
             }
         }
