@@ -36,20 +36,46 @@ public class MainUI extends JFrame {
 
     private void initUI() {
         setTitle("루틴 코치 - " + userData.getUsername() + "님");
-        setSize(900, 650);
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // 상단 패널: 사용자 이름 및 레벨/EXP 표시
-        JPanel topPanel = new JPanel(new GridLayout(1, 2));
+        // 상단 패널: 사용자 정보
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new GridLayout(3, 1)); // 3행
+
+        // 첫 번째 행: 기본 정보
+        JPanel firstRow = new JPanel(new GridLayout(1, 2));
         JLabel welcomeLabel = new JLabel(userData.getUsername() + "님 환영합니다!", SwingConstants.LEFT);
         welcomeLabel.setFont(new Font("맑은 고딕", Font.BOLD, 18));
-        topPanel.add(welcomeLabel);
+        firstRow.add(welcomeLabel);
 
-        levelLabel = new JLabel("", SwingConstants.RIGHT);
+        JLabel levelLabel = new JLabel("Lv." + userData.getLevel() + " | EXP: " +
+                userData.getExp() + "/" + userData.getNeedExp(), SwingConstants.RIGHT);
         levelLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 16));
-        updateExpDisplay();   // 초기 EXP 상태 표시
-        topPanel.add(levelLabel);
+        firstRow.add(levelLabel);
+
+        topPanel.add(firstRow);
+
+        // 두 번째 행: 회차 정보
+        JPanel secondRow = new JPanel(new GridLayout(1, 2));
+        JLabel cycleLabel = new JLabel("회차: " + userData.getCycle() + "회차", SwingConstants.LEFT);
+        cycleLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        secondRow.add(cycleLabel);
+
+        JLabel resetCountLabel = new JLabel("초기화 횟수: " + userData.getLevelResetCount() + "회", SwingConstants.RIGHT);
+        resetCountLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        secondRow.add(resetCountLabel);
+
+        topPanel.add(secondRow);
+
+        // 세 번째 행: 칭호 정보
+        JPanel thirdRow = new JPanel();
+        JLabel titleLabel = new JLabel("현재 칭호: " + userData.getCurrentTitle(), SwingConstants.CENTER);
+        titleLabel.setFont(new Font("맑은 고딕", Font.ITALIC, 14));
+        thirdRow.add(titleLabel);
+
+        topPanel.add(thirdRow);
 
         add(topPanel, BorderLayout.NORTH);
 

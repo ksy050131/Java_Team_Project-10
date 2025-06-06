@@ -39,12 +39,6 @@ public class UserData {
     private int level;
     private int exp;
     private int needExp;
-    private int totalExp; // 총 누적 경험치
-    private int cycle;    // 반복 횟수
-
-    // 칭호
-    private String currentTitle;      // 현재 칭호
-    private List<String> ownedTitles; // 소지 칭호 목록
 
     // 루틴 데이터
     private List<Routine> routines = new ArrayList<>();
@@ -53,7 +47,13 @@ public class UserData {
     // 기본 생성자
     public UserData() {}
 
-    // 모든 필드를 초기화하는 생성자
+    // 칭호 시스템 관련 필드
+    private int totalExp = 0;
+    private int cycle = 0; // 회차 (레벨 10 달성 시 증가)
+    private String currentTitle = ""; // 현재 칭호
+    private List<String> ownedTitles = new ArrayList<>(); // 소지 칭호 목록
+    private int levelResetCount = 0; // 레벨 초기화 횟수 (10레벨 달성 횟수)
+
     public UserData(String username, String userId, String phoneNumber,
                     String birthDate, String password, int level,
                     int exp, int needExp, int totalExp, int cycle,
@@ -130,50 +130,48 @@ public class UserData {
         return user;
     }
 
+    // Getters
+    public String getUsername() { return username; }
+    public String getUserId() { return userId; }
     private static String getCurrentDate() {
         return new SimpleDateFormat("yyyy-MM-dd").format(new Date());
     }
-
-    // Getter / Setter
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
-
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
-
     public String getBirthDate() { return birthDate; }
-    public void setBirthDate(String birthDate) { this.birthDate = birthDate; }
-
     public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-
     public int getLevel() { return level; }
-    public void setLevel(int level) { this.level = level; }
-
     public int getExp() { return exp; }
-    public void setExp(int exp) { this.exp = exp; }
-
     public int getNeedExp() { return needExp; }
-    public void setNeedExp(int needExp) { this.needExp = needExp; }
-
-    public int getTotalExp() { return totalExp; }
-    public void setTotalExp(int totalExp) { this.totalExp = totalExp; }
-
-    public int getCycle() { return cycle; }
-    public void setCycle(int cycle) { this.cycle = cycle; }
-
-    public String getCurrentTitle() { return currentTitle; }
-    public void setCurrentTitle(String currentTitle) { this.currentTitle = currentTitle; }
-
-    public List<String> getOwnedTitles() { return ownedTitles; }
-    public void setOwnedTitles(List<String> ownedTitles) { this.ownedTitles = ownedTitles; }
-
     public List<Routine> getRoutines() { return routines; }
-    public void setRoutines(List<Routine> routines) { this.routines = routines; }
-
     public String getLastUpdateDate() { return lastUpdateDate; }
+    public int getTotalExp() { return totalExp; }
+    public int getCycle() { return cycle; }
+    public String getCurrentTitle() { return currentTitle; }
+    public List<String> getOwnedTitles() { return ownedTitles; }
+    public int getLevelResetCount() { return levelResetCount; }
+
+    // Setters
+    public void setUsername(String username) { this.username = username; }
+    public void setUserId(String userId) { this.userId = userId; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    public void setBirthDate(String birthDate) { this.birthDate = birthDate; }
+    public void setPassword(String password) { this.password = password; }
+    public void setLevel(int level) { this.level = level; }
+    public void setExp(int exp) { this.exp = exp; }
+    public void setNeedExp(int needExp) { this.needExp = needExp; }
+    public void setRoutines(List<Routine> routines) { this.routines = routines; }
     public void setLastUpdateDate(String lastUpdateDate) { this.lastUpdateDate = lastUpdateDate; }
+    public void setTotalExp(int totalExp) { this.totalExp = totalExp; }
+    public void setCycle(int cycle) { this.cycle = cycle; }
+    public void setCurrentTitle(String currentTitle) { this.currentTitle = currentTitle; }
+    public void setOwnedTitles(List<String> ownedTitles) {
+        this.ownedTitles = ownedTitles;
+    }
+    public void setLevelResetCount(int levelResetCount) {
+        this.levelResetCount = levelResetCount;
+    }
+
+    // 레벨 초기화 횟수 증가
+    public void incrementLevelResetCount() {
+        this.levelResetCount++;
+    }
 }

@@ -2,6 +2,8 @@ package account;
 
 import data.UserData;
 import data.Database;
+import routine.Routine;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -63,6 +65,14 @@ public class Account {
                 new ArrayList<>(),       // ownedTitles (List<String>)
                 new ArrayList<>()        // routines (List<Routine>)
         );
+
+        // 칭호 시스템 필드 초기화
+        newUser.setTotalExp(0);
+        newUser.setCycle(0);
+        newUser.setCurrentTitle("");
+        newUser.setOwnedTitles(new ArrayList<>());
+        newUser.setLevelResetCount(0);
+
         List<UserData> allUsers = Database.loadUserData();
         allUsers.add(newUser);
         Database.saveUserData(allUsers);
@@ -177,4 +187,3 @@ public class Account {
         }
     }
 }
-
