@@ -3,78 +3,88 @@ package routine;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
-import org.bson.Document; // MongoDB 연동을 위해 추가
+import org.bson.Document;
 
 public class Routine {
-    private String id;
-    private String content;
-    private int difficulty;
-    private boolean completed;
+    protected String id;
+    protected String content;
+    protected int difficulty;
+    protected boolean completed;
     protected String dateCreated;
-    protected String dateMarkedCompleted; // 루틴이 완료된 날짜 (protected로 변경 또는 getter 제공)
-    // DailyRoutine에서 접근하거나, JSON에 포함시키기 위함.
+    protected String dateMarkedCompleted; // 날짜 문자열 yyyy-MM-dd
+    protected int lastGainedExp = 0; // 마지막으로 얻은 exp 저장 -> 취소 시 그대로 가져와서 차감하기 위해 사용
 
-    // 기본 생성자
+    // 기본 생성자 (역직렬화용)
     public Routine() {
-        id = "";
-        content = "";
-        difficulty = 0;
-        completed = false;
-        dateCreated = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-        dateMarkedCompleted = null; // 초기화
+        this.id = UUID.randomUUID().toString();
+        this.dateCreated = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        this.completed = false;
     }
 
-    // 생성자 - 새 루틴 생성 시 사용
+    // 기존 생성자
     public Routine(String content, int difficulty) {
         this();
-        this.id = UUID.randomUUID().toString(); // 고유 ID 자동 생성
         this.content = content;
         this.difficulty = difficulty;
     }
 
+    // 생성자 오버로딩: 1개 인자(내용)
     public Routine(String content) {
-        this(); // 기본 생성자 호출
-        this.id = UUID.randomUUID().toString();
-        this.content = content;
+        this(content, 1);  // 난이도 기본 1, 타입 NORMAL 지정
     }
 
-    // Getters and Setters
-    // id는 Setter를 만들지 않는 것이 좋습니다 (생성 시 할당).
     public String getId() { return id; }
-
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
-
     public int getDifficulty() { return difficulty; }
     public void setDifficulty(int difficulty) { this.difficulty = difficulty; }
-
     public boolean isCompleted() { return completed; }
     public String getDateCreated() { return dateCreated; }
     public String getDateMarkedCompleted() { return dateMarkedCompleted; }
+    public void setLastGainedExp(int lastGainedExp) { this.lastGainedExp = lastGainedExp; }
+    public int getLastGainedExp() { return lastGainedExp; }
 
-    // 핵심 메서드
     public void markAsCompleted() {
-        if (!this.completed) {
-            this.completed = true;
-            this.dateMarkedCompleted = new SimpleDateFormat("yyyy-MM-dd").format(new Date()); // 완료된 날짜 기록
-            System.out.println("루틴 '" + content + "' 완료!");
-        }
+        if (completed) return;
+
+        completed = true;
+        dateMarkedCompleted = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
+        System.out.println("✔ " + content + " 완료!");
     }
 
     public void markAsUncompleted() {
-        this.completed = false;
-        this.dateMarkedCompleted = null; // 완료 날짜도 초기화
-        // System.out.println("루틴 '" + content + "' 미완료 처리됨."); // 필요시 로그
+        completed = false;
+        dateMarkedCompleted = null;
     }
 
-    /**
-     * 새로운 날짜에 맞춰 루틴의 완료 상태를 업데이트합니다.
-     * 기본 Routine(일회성)의 경우 이 메서드는 아무 작업도 수행하지 않습니다.
-     * DailyRoutine과 같은 하위 클래스에서 이 메서드를 오버라이드하여
-     * 매일 초기화되는 로직을 구현합니다.
-     */
-    public void P_updateStatusForNewDay() {
-        // 기본 루틴은 일회성이므로 상태 업데이트 로직이 없음
+    // toDocument 메서드에 타입 Discriminator 추가
+    public Document toDocument() {
+        return new Document("type", "Routine")
+                .append("id", id)
+                .append("content", content)
+                .append("difficulty", difficulty)
+                .append("completed", completed)
+                .append("dateCreated", dateCreated)
+                .append("dateMarkedCompleted", dateMarkedCompleted)
+                .append("lastGainedExp", lastGainedExp);
+    }
+
+    // fromDocument에서 타입에 따라 하위 클래스로 분기
+    public static Routine fromDocument(Document doc) {
+        String type = doc.getString("type");
+        if ("DailyRoutine".equals(type)) {
+            return DailyRoutine.fromDocument(doc);
+        }
+        Routine routine = new Routine();
+        routine.id = doc.getString("id");
+        routine.content = doc.getString("content");
+        routine.difficulty = doc.getInteger("difficulty", 0);
+        routine.completed = doc.getBoolean("completed", false);
+        routine.dateCreated = doc.getString("dateCreated");
+        routine.dateMarkedCompleted = doc.getString("dateMarkedCompleted");
+        routine.lastGainedExp = doc.getInteger("lastGainedExp", 0);
+        return routine;
     }
 
 
@@ -89,29 +99,7 @@ public class Routine {
                 '}';
     }
 
+    public void P_updateStatusForNewDay() {
 
-
-    // MongoDB 저장용
-    public Document toDocument() {
-        return new Document("id", id)
-                .append("content", content)
-                .append("difficulty", difficulty)
-                .append("completed", completed)
-                .append("dateCreated", dateCreated)
-                .append("dateMarkedCompleted", dateMarkedCompleted);
     }
-
-    // MongoDB 복원용
-    public static Routine fromDocument(Document doc) {
-        Routine routine = new Routine();
-        routine.id = doc.getString("id");
-        routine.content = doc.getString("content");
-        routine.difficulty = doc.getInteger("difficulty", 0);
-        routine.completed = doc.getBoolean("completed", false);
-        routine.dateCreated = doc.getString("dateCreated");
-        routine.dateMarkedCompleted = doc.getString("dateMarkedCompleted");
-        return routine;
-    }
-
-
 }

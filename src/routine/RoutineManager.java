@@ -44,14 +44,22 @@ public class RoutineManager {
     }
 
     // 새 일일 루틴 추가
-    public DailyRoutine addDailyRoutine(String content, int rewardExp) {
-        DailyRoutine newDailyRoutine = new DailyRoutine(content, rewardExp);
+    public DailyRoutine addDailyRoutine(String content, int difficulty) {
+        DailyRoutine newDailyRoutine = new DailyRoutine(content, difficulty);
         this.routines.add(newDailyRoutine); // List<Routine>에 DailyRoutine 객체 추가 (다형성)
         triggerSave();
         System.out.println("새 일일 루틴 '" + content + "' 추가됨 (ID: " + newDailyRoutine.getId() + ")");
         return newDailyRoutine;
     }
 
+//    // 루틴 추가 메소드
+//    public Routine addRoutine(String content, int difficulty, Routine.RoutineType type) {
+//        Routine newRoutine = new Routine(content, difficulty, type);
+//        this.routines.add(newRoutine);
+//        triggerSave();
+//        System.out.println("새 할 일 '" + content + "' 추가됨 (ID: " + newRoutine.getId() + ")");
+//        return newRoutine;
+//    }
 
     // ID로 루틴 조회 (기존과 동일)
     public Optional<Routine> getRoutineById(String id) {
