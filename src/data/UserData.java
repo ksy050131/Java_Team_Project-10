@@ -77,7 +77,7 @@ public class UserData {
 
     /**
      * MongoDB 연동을 위해 추가됨 (toDocument/fromDocument)
-     *
+     * - routines도 Document 리스트로 저장
      */
     public Document toDocument() {
         List<Document> routineDocs = routines.stream()
