@@ -185,7 +185,8 @@ public class MainUI extends JFrame {
         addDailyBtn.addActionListener(e -> {
             String content = JOptionPane.showInputDialog(this, "일일 루틴 내용을 입력하세요:");
             if (content != null && !content.trim().isEmpty()) {
-                int difficulty = 3; // 기본 난이도, 필요 시 수정 가능
+                Gemini gemini = new Gemini();
+                int difficulty = gemini.getDif(content); // 난이도 받아오기
                 routineManager.addDailyRoutine(content, difficulty);
                 updateRoutineList();
                 saveUserData();
