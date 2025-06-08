@@ -4,11 +4,28 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="32d01d11-97da-4497-91c2-bdb9da1e028b" name="변경" comment="" />
+    <list default="true" id="32d01d11-97da-4497-91c2-bdb9da1e028b" name="변경" comment="">
+      <change afterPath="$PROJECT_DIR$/src/exp/ResetManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/data/Gemini.class" beforeDir="false" afterPath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/data/Gemini.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/exp/ExpManager.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/exp/ExpUser.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/data/Gemini.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/data/Gemini.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exp/ExpManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/exp/ExpManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exp/ExpUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/exp/ExpUser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/MainUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/MainUI.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -52,14 +69,6 @@
     &quot;애플리케이션.MainAppGUI.executor&quot;: &quot;Run&quot;
   }
 }</component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.23774.435" />
-        <option value="bundled-js-predefined-d6986cc7102b-f27c65a3e318-JavaScript-IU-251.23774.435" />
-      </set>
-    </attachedChunks>
-  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="디폴트 작업">
       <changelist id="32d01d11-97da-4497-91c2-bdb9da1e028b" name="변경" comment="" />
@@ -70,7 +79,7 @@
       <workItem from="1749293615304" duration="1407000" />
       <workItem from="1749295073209" duration="818000" />
       <workItem from="1749354766870" duration="104000" />
-      <workItem from="1749355373122" duration="1010000" />
+      <workItem from="1749355373122" duration="2574000" />
     </task>
     <servers />
   </component>

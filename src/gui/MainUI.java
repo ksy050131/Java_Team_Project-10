@@ -145,12 +145,14 @@ public class MainUI extends JFrame {
                     Boolean completed = (Boolean) tableModel.getValueAt(row, col);
                     if (completed && !routine.isCompleted()) {
                         // [FIXED] routineManager.completeRoutine이 반환하는 경험치를 expManager.addExp에 전달
-                        int gainedExp = routineManager.completeRoutine(routine.getId());
-                        expManager.addExp(gainedExp);
+                        //int gainedExp = routineManager.completeRoutine(routine.getId());
+                        //expManager.addExp(gainedExp);
+                        expManager.addExpFromRoutine(routine);
                     } else if (!completed && routine.isCompleted()) {
                         // [FIXED] routineManager.uncompleteRoutine이 반환하는 음수 경험치를 expManager.addExp에 전달
-                        int recoveredExp = routineManager.uncompleteRoutine(routine.getId());
-                        expManager.addExp(recoveredExp);
+                        //int recoveredExp = routineManager.uncompleteRoutine(routine.getId());
+                        //expManager.addExp(recoveredExp);
+                        expManager.removeExpFromRoutine(routine);
                     }
                     updateExpDisplay();
                     saveUserData();
@@ -363,10 +365,10 @@ public class MainUI extends JFrame {
         cb.addActionListener(e -> {
             if (cb.isSelected()) {
                 int gained = routineManager.completeRoutine(routine.getId());
-                expManager.addExp(gained);
+                expManager.addExpFromRoutine(routine);
             } else {
                 int lost = routineManager.uncompleteRoutine(routine.getId());
-                expManager.addExp(lost);
+                expManager.removeExpFromRoutine(routine);
             }
             updateStatusPanel();
         });
