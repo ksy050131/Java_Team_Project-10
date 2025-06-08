@@ -36,6 +36,10 @@ public class ExpManager {
 
         // 경험치 추가
         userData.setExp(userData.getExp() + finalExp);
+        //
+        userData.setTotalExp(userData.getTotalExp() + finalExp); // 누적 경험치 증가
+        //
+
         // 경험치 routine 클래스에 저장 (추후 차감 시에 반영하기 위해)
         routine.setLastGainedExp(finalExp);
 
