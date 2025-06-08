@@ -82,7 +82,7 @@ public class ExpManager {
             levelUp();
         }
     }
-
+//
     private void levelUp() {
         userData.setExp(userData.getExp() - userData.getNeedExp());
         userData.setLevel(userData.getLevel() + 1);

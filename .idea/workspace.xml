@@ -5,15 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="32d01d11-97da-4497-91c2-bdb9da1e028b" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/src/exp/ResetManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/data/Gemini.class" beforeDir="false" afterPath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/data/Gemini.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/exp/ExpManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/exp/ExpUser.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/data/Gemini.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/data/Gemini.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exp/ExpManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/exp/ExpManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exp/ExpUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/exp/ExpUser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/MainUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/MainUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/MainAppGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/MainAppGUI.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

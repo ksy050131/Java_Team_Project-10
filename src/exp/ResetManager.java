@@ -12,7 +12,7 @@ public class ResetManager {
         user.setLevel(1);
         user.setExp(0);
         user.setNeedExp(100);
-
+//
         // 루틴 목록 초기화
         user.getRoutines().clear();
 
