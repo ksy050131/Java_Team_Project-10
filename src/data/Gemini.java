@@ -94,7 +94,7 @@ public class Gemini {
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
             String raw = response.toString();
-            //System.out.println(raw);  //확인용도
+            System.out.println(raw);  //확인용도
 
             // 정규식으로 1~5 중 첫번째 숫자 찾기
             java.util.regex.Pattern p = java.util.regex.Pattern.compile("[1-5]");

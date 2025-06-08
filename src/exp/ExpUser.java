@@ -10,25 +10,28 @@ import data.UserData;
 import routine.RoutineManager;
 
 public class ExpUser {
-    private UserData userData;
-    private RoutineManager routineManager;
-    private ExpManager expManager;
+    private final UserData userData;
+    private final RoutineManager routineManager;
+    private final ExpManager expManager;
 
     public ExpUser(UserData userData) {
         this.userData = userData;
-        this.routineManager = new RoutineManager(userData.getRoutines(), this::saveUserData);
+        this.routineManager = new RoutineManager(
+                userData.getRoutines(),
+                this::saveUserData
+        );
         this.expManager = new ExpManager(userData);
     }
 
-    /**
-     * 루틴 완료 처리
-     * @param routineId 완료할 루틴의 UUID (또는 인덱스)
-     */
     public void completeRoutine(String routineId) {
-        int earnedExp = routineManager.completeRoutine(routineId);
-        if (earnedExp > 0) {
-            expManager.addExp(earnedExp);
-            saveUserData();
+        // RoutineManager를 통해 루틴 완료 처리
+        int result = routineManager.completeRoutine(routineId);
+        if (result > 0) {
+            // ExpManager를 통해 경험치 추가
+            routineManager.getRoutineById(routineId).ifPresent(routine -> {
+                expManager.addExpFromRoutine(routine);
+                saveUserData();
+            });
         }
     }
 
@@ -36,16 +39,7 @@ public class ExpUser {
         Database.updateUserData(userData);
     }
 
-    // Getter 메서드들 (app.MainApp 등 외부에서 호출용)
-    public UserData getUserData() {
-        return userData;
-    }
-
-    public RoutineManager getRoutineManager() {
-        return routineManager;
-    }
-
-    public ExpManager getExpManager() {
-        return expManager;
-    }
+    public UserData getUserData() { return userData; }
+    public RoutineManager getRoutineManager() { return routineManager; }
+    public ExpManager getExpManager() { return expManager; }
 }
