@@ -94,6 +94,4 @@ public class DailyRoutine extends Routine {
         // 만약 어제 완료하지 못하고 오늘이 되었다면, 그냥 미완료 상태로 남아있게 됩니다.
         // (dateMarkedCompleted가 null이거나, isCompleted()가 false인 경우)
     }
-
-
 }

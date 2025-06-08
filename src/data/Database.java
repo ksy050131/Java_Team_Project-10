@@ -24,7 +24,6 @@ import java.util.*;
  *
  */
 
-
 //데이터베이스 직접 확인하고 싶으시면 MongoDB가입 후
 public class Database {
     private static final String URI = "mongodb+srv://javaproject:hl46K54WXdLo0SMC@java-team-project-datab.rsqz05z.mongodb.net/?retryWrites=true&w=majority&appName=Java-team-project-database";
@@ -51,27 +50,28 @@ public class Database {
         if (users == null || users.isEmpty()) {
             return; // 빈 리스트일 경우 insertMany 생략
         }
-
         List<Document> docs = new ArrayList<>();
         for (UserData user : users) {
             docs.add(user.toDocument());
         }
-
         col.insertMany(docs);
     }
 
     // 모든 사용자 데이터 로드
     public static List<UserData> loadUserData() {
         MongoCollection<Document> col = getUserCollection();
+
         List<UserData> users = new ArrayList<>();
         for (Document doc : col.find()) {
             users.add(UserData.fromDocument(doc));
         }
         return users;
     }
+
     // 개별 사용자 등록
     public static boolean uploadUserData(UserData userData) {
         MongoCollection<Document> col = getUserCollection();
+
         if (col.find(eq("userId", userData.getUserId())).first() != null) {
             System.out.println("이미 존재하는 아이디입니다.");
             return false;
@@ -79,6 +79,7 @@ public class Database {
         col.insertOne(userData.toDocument());
         return true;
     }
+
     // 개별 사용자 업데이트
     public static boolean updateUserData(UserData updatedUser) {
         MongoCollection<Document> col = getUserCollection();
@@ -93,6 +94,7 @@ public class Database {
         }
         return true;
     }
+
     // userId로 사용자 찾기
     public static UserData findUserDataById(String userId) {
         MongoCollection<Document> col = getUserCollection();
@@ -108,6 +110,7 @@ public class Database {
                 .first();
         return doc != null ? doc.getString("userId") : null;
     }
+
     // 사용자 존재 여부
     public static boolean isUserExists(String userId) {
         return findUserDataById(userId) != null;

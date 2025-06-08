@@ -48,8 +48,8 @@ public class Routine {
         if (completed) return;
 
         completed = true;
-        dateMarkedCompleted = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
+        dateMarkedCompleted = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         System.out.println("✔ " + content + " 완료!");
     }
 
@@ -76,6 +76,7 @@ public class Routine {
         if ("DailyRoutine".equals(type)) {
             return DailyRoutine.fromDocument(doc);
         }
+
         Routine routine = new Routine();
         routine.id = doc.getString("id");
         routine.content = doc.getString("content");

@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 public class Gemini {
 
     // api가 필요합니다 api발급받는 곳: https://aistudio.google.com/app/apikey
+
     private static final String API_KEY = "AIzaSyB1Z2b-iaUWOLOJZJA7sMGGlWw0erx8G_M";
 
     // 모델명

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # IntelliJ IDEA
 .idea/
 *.iml
@@ -6,3 +7,12 @@
 classes/
 production/
 out/
+=======
+classes/
+.idea/
+*.iml
+out/
+bin/
+build/
+production/
+>>>>>>> GUI

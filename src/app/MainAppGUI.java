@@ -33,4 +33,3 @@ public class MainAppGUI {
         new LoginPage().show();
     }
 }
-
