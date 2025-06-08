@@ -5,28 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="32d01d11-97da-4497-91c2-bdb9da1e028b" name="변경" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/bson_5_5_0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/bson_5_5_0.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/app/MainAppGUI.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/gui/LoginPage.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/gui/MainUI$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/gui/MainUI.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/gui/SignUpPage.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/routine/DailyRoutine.class" beforeDir="false" afterPath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/routine/DailyRoutine.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/routine/Routine.class" beforeDir="false" afterPath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/routine/Routine.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/routine/RoutineManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/classes/production/JavaProgTeamProject/routine/RoutineManager.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gson-2.13.1.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Account.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Database.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/UserData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/LoginPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/LoginPage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/gui/MainUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/MainUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/SignUpPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/SignUpPage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routine/DailyRoutine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/routine/DailyRoutine.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routine/Routine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/routine/Routine.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routine/RoutineManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/routine/RoutineManager.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,7 +71,9 @@
       <option name="presentableId" value="Default" />
       <updated>1749260277018</updated>
       <workItem from="1749293615304" duration="1407000" />
-      <workItem from="1749295073209" duration="312000" />
+      <workItem from="1749295073209" duration="818000" />
+      <workItem from="1749354766870" duration="104000" />
+      <workItem from="1749355373122" duration="638000" />
     </task>
     <servers />
   </component>
