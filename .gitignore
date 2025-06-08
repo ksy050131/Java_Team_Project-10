@@ -1,1 +1,8 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Build output
 classes/
+production/
+out/
