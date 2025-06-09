@@ -61,6 +61,12 @@ public class ExpManager {
     // 루틴 완료 취소 시 exp 차감을 위한 메소드
     public void removeExpFromRoutine(Routine routine) {
         int expToRemove = routine.getLastGainedExp();
+
+        // [추가] 레벨 1일 때 루틴 해제 시 exp가 음수로 내려가는 것 방지
+        if (userData.getLevel() == 1 && userData.getExp() <= expToRemove) {
+            userData.setExp(0);
+            return;
+        }
         userData.setExp(Math.max(0, userData.getExp() - expToRemove));
         System.out.printf("[-] %d EXP 차감 (완료 취소)\n", expToRemove);
 
