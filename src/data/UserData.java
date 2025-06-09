@@ -59,7 +59,6 @@ public class UserData {
                     int exp, int needExp, int totalExp, int cycle,
                     String currentTitle, List<String> ownedTitles,
                     List<Routine> routines) {
-
         this.username = username;
         this.userId = userId;
         this.phoneNumber = phoneNumber;

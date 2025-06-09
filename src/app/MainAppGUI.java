@@ -1,9 +1,10 @@
 package app;
 
-import account.Account;
 import data.UserData;
+import account.Account;
 import gui.LoginPage;
 import gui.MainUI;
+
 import javax.swing.*;
 
 public class MainAppGUI {
@@ -11,16 +12,12 @@ public class MainAppGUI {
     private static UserData currentUser;
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            LoginPage loginPage = new LoginPage();
-            loginPage.setVisible(true); // show() 대신 setVisible(true)
-        });
+        SwingUtilities.invokeLater(() -> new LoginPage().show());
     }
 
     public static void loginSuccess(UserData user) {
         currentUser = user;
-        MainUI mainUI = new MainUI(user);
-        mainUI.setVisible(true); // show() 대신 setVisible(true)
+        new MainUI(user).show();
     }
 
     public static Account getAccount() {
@@ -33,7 +30,6 @@ public class MainAppGUI {
 
     public static void logout() {
         currentUser = null;
-        LoginPage loginPage = new LoginPage();
-        loginPage.setVisible(true); // show() 대신 setVisible(true)
+        new LoginPage().show();
     }
 }

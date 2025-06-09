@@ -5,16 +5,17 @@ import data.Database;
 import data.Gemini;
 import data.UserData;
 import exp.ExpManager;
-import routine.DailyRoutine;
+import routine.DailyRoutine; // DailyRoutine을 타입 확인(instanceof)에 사용하기 위해 임포트
 import routine.Routine;
 import routine.RoutineManager;
+import chart.ChartDisplayFrame; // [추가] ChartDisplayFrame 클래스 임포트
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableColumn;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,40 +23,70 @@ public class MainUI extends JFrame {
     private final UserData userData;
     private final RoutineManager routineManager;
     private final ExpManager expManager;
-
-    private JLabel levelLabel;        // 상단 사용자 경험치 표시 레이블
-    private JTable routineTable;      // 루틴 목록을 보여줄 JTable
-    private DefaultTableModel tableModel;  // JTable에 연결할 테이블 모델
+    private JLabel levelLabel;
+    private JTable routineTable;
+    private DefaultTableModel tableModel;
+    private JPanel centerPanel;
+    // private JFrame frame; // MainUI가 JFrame을 상속하므로 불필요
+    private JProgressBar expBar;
 
     public MainUI(UserData userData) {
         this.userData = userData;
-        // UserData 내 루틴 리스트와 저장 콜백을 전달해 RoutineManager 생성
-        this.routineManager = new RoutineManager(userData.getRoutines(), this::saveUserData);
+        this.routineManager = new RoutineManager(
+                userData.getRoutines() != null ? userData.getRoutines() : new ArrayList<>(),
+                this::saveUserData // Database.updateUserData는 static 메서드이거나, Database 인스턴스 필요
+        );
         this.expManager = new ExpManager(userData);
-        initUI();
+        initUI(); // UI 초기화 메서드 호출
     }
 
     private void initUI() {
         setTitle("루틴 코치 - " + userData.getUsername() + "님");
-        setSize(900, 650);
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // 상단 패널: 사용자 이름 및 레벨/EXP 표시
-        JPanel topPanel = new JPanel(new GridLayout(1, 2));
+        // 상단 패널: 사용자 정보
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new GridLayout(3, 1)); // 3행
+
+        // 첫 번째 행: 기본 정보
+        JPanel firstRow = new JPanel(new GridLayout(1, 2));
         JLabel welcomeLabel = new JLabel(userData.getUsername() + "님 환영합니다!", SwingConstants.LEFT);
         welcomeLabel.setFont(new Font("맑은 고딕", Font.BOLD, 18));
-        topPanel.add(welcomeLabel);
+        firstRow.add(welcomeLabel);
 
-        levelLabel = new JLabel("", SwingConstants.RIGHT);
+        levelLabel = new JLabel("Lv." + userData.getLevel() + " | EXP: " +
+                userData.getExp() + "/" + userData.getNeedExp(), SwingConstants.RIGHT);
         levelLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 16));
-        updateExpDisplay();   // 초기 EXP 상태 표시
-        topPanel.add(levelLabel);
+        firstRow.add(levelLabel);
+
+        topPanel.add(firstRow);
+
+        // 두 번째 행: 회차 정보
+        JPanel secondRow = new JPanel(new GridLayout(1, 2));
+        JLabel cycleLabel = new JLabel("회차: " + userData.getCycle() + "회차", SwingConstants.LEFT);
+        cycleLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        secondRow.add(cycleLabel);
+
+        JLabel resetCountLabel = new JLabel("초기화 횟수: " + userData.getCycle() + "회", SwingConstants.RIGHT);
+        resetCountLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        secondRow.add(resetCountLabel);
+
+        topPanel.add(secondRow);
+
+        // 세 번째 행: 칭호 정보
+        JPanel thirdRow = new JPanel();
+        JLabel titleLabel = new JLabel("현재 칭호: " + userData.getCurrentTitle(), SwingConstants.CENTER);
+        titleLabel.setFont(new Font("맑은 고딕", Font.ITALIC, 14));
+        thirdRow.add(titleLabel);
+
+        topPanel.add(thirdRow);
 
         add(topPanel, BorderLayout.NORTH);
 
         // 중앙 패널: JTable로 루틴 목록 표시
-        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel = new JPanel(new BorderLayout());
 
         // 컬럼명 배열: 완료(체크박스), 루틴 타입, 내용, 난이도, 연속 완료일, ID(숨김)
         String[] columnNames = {"완료", "루틴 타입", "내용", "난이도", "연속 완료일", "ID"};
@@ -81,11 +112,6 @@ public class MainUI extends JFrame {
         idColumn.setMinWidth(0);
         idColumn.setMaxWidth(0);
         idColumn.setPreferredWidth(0);
-        idColumn.setWidth(0);
-        // 헤더에서도 ID 컬럼 숨김 처리
-        routineTable.getTableHeader().getColumnModel().getColumn(5).setMinWidth(0);
-        routineTable.getTableHeader().getColumnModel().getColumn(5).setMaxWidth(0);
-        routineTable.getTableHeader().getColumnModel().getColumn(5).setPreferredWidth(0);
 
         // 스크롤패인에 JTable 추가 후 중앙 패널에 붙임
         JScrollPane scrollPane = new JScrollPane(routineTable);
@@ -97,19 +123,21 @@ public class MainUI extends JFrame {
             if (e.getType() == TableModelEvent.UPDATE) {
                 int row = e.getFirstRow();
                 int col = e.getColumn();
-                String routineId = (String) routineTable.getValueAt(row, 5);  // 숨긴 ID 컬럼으로 루틴 식별
+                if (row < 0) return; // 행이 선택되지 않은 경우 예외 방지
+
+                String routineId = (String) routineTable.getValueAt(row, 5);
                 if (routineId == null) return;
                 Optional<Routine> opt = routineManager.getRoutineById(routineId);
                 if (opt.isEmpty()) return;
                 Routine routine = opt.get();
 
-                if (col == 0) {  // 완료 체크박스 변경 시 처리
+                if (col == 0) {  // 완료 체크박스 변경 시 처리 (체크 되지 않고 경험치만 올리고 싶은 경우 completeRoutine, uncompleteRoutine "둘다" 주석 처리)
                     Boolean completed = (Boolean) tableModel.getValueAt(row, col);
                     if (completed && !routine.isCompleted()) {
-                        routineManager.completeRoutine(routine.getId());
+                         routineManager.completeRoutine(routine.getId()); // 체크 되지 않고 경험치만 올리고 싶은 경우 주석 처리
                         expManager.addExpFromRoutine(routine);
                     } else if (!completed && routine.isCompleted()) {
-                        routineManager.uncompleteRoutine(routine.getId());
+                         routineManager.uncompleteRoutine(routine.getId()); // 체크 되지 않고 경험치만 올리고 싶은 경우 주석 처리
                         expManager.removeExpFromRoutine(routine);
                     }
                     updateExpDisplay();
@@ -125,47 +153,62 @@ public class MainUI extends JFrame {
         });
 
         // 하단 패널: 루틴 추가, 정렬 버튼 및 로그아웃 버튼 그룹 생성
-        JPanel bottomPanel = new JPanel(new GridLayout(1, 8));
+        JPanel bottomPanel = new JPanel(new GridLayout(1, 7));
 
         // 루틴 추가 버튼 3종 (일반, 일일, 연속)
         JButton addNormalBtn = new JButton("일반 루틴 추가");
-        addNormalBtn.addActionListener(e -> addRoutine());
+        addNormalBtn.addActionListener(e -> {
+            String content = JOptionPane.showInputDialog(this, "일반 루틴 내용을 입력하세요:");
+            if (content != null && !content.trim().isEmpty()) {
+                Gemini gemini = new Gemini();
+                int difficulty = gemini.getDif(content); // 난이도 받아오기
+                routineManager.addRoutine(content, difficulty);
+                updateRoutineList();
+                saveUserData();
+            }
+        });
         bottomPanel.add(addNormalBtn);
 
         JButton addDailyBtn = new JButton("일일 루틴 추가");
-        addDailyBtn.addActionListener(e -> addDailyRoutine());
+        addDailyBtn.addActionListener(e -> {
+            String content = JOptionPane.showInputDialog(this, "일일 루틴 내용을 입력하세요:");
+            if (content != null && !content.trim().isEmpty()) {
+                Gemini gemini = new Gemini();
+                int difficulty = gemini.getDif(content); // 난이도 받아오기
+                routineManager.addDailyRoutine(content, difficulty);
+                updateRoutineList();
+                saveUserData();
+            }
+        });
         bottomPanel.add(addDailyBtn);
-
-//        JButton addStreakBtn = new JButton("연속 루틴 추가");
-//        addStreakBtn.addActionListener(e -> addRoutine(RoutineType.STREAK));
-//        bottomPanel.add(addStreakBtn);
 
         // 정렬 버튼 3종 (이름순, 완료순, 등록일순)
         JButton sortByNameBtn = new JButton("이름순 정렬");
-        sortByNameBtn.addActionListener(e -> {
-            List<Routine> sorted = routineManager.getRoutinesSortedByName();
-            updateRoutineList(sorted);
-        });
+        sortByNameBtn.addActionListener(e -> updateRoutineList(routineManager.getRoutinesSortedByName()));
         bottomPanel.add(sortByNameBtn);
 
         JButton sortByCompleteBtn = new JButton("완료순 정렬");
-        sortByCompleteBtn.addActionListener(e -> {
-            List<Routine> sorted = routineManager.getRoutinesSortedByComplete();
-            updateRoutineList(sorted);
-        });
+        sortByCompleteBtn.addActionListener(e -> updateRoutineList(routineManager.getRoutinesSortedByComplete()));
         bottomPanel.add(sortByCompleteBtn);
 
         JButton sortByDateBtn = new JButton("등록일순 정렬");
-        sortByDateBtn.addActionListener(e -> {
-            List<Routine> sorted = routineManager.getRoutinesSortedByRegister();
-            updateRoutineList(sorted);
-        });
+        sortByDateBtn.addActionListener(e -> updateRoutineList(routineManager.getRoutinesSortedByRegister()));
         bottomPanel.add(sortByDateBtn);
+
+        // --- [추가] "통계 보기" 버튼 ---
+        JButton viewStatsBtn = new JButton("통계 보기");
+        viewStatsBtn.addActionListener(e -> showStatisticsChart());
+        bottomPanel.add(viewStatsBtn);
+        // ------------------------------------
 
         // 로그아웃 버튼
         JButton logoutBtn = new JButton("로그아웃");
         logoutBtn.addActionListener(e -> logout());
         bottomPanel.add(logoutBtn);
+
+        // 하단 패널 레이아웃 재조정 (GridLayout 컬럼 수 변경)
+        // 기존 7개 버튼 + 통계 보기 버튼 1개 = 총 8개
+        // GridLayout(1, 8)은 그대로 유지됩니다. 만약 버튼 수가 달라진다면 이 숫자를 조정해야 합니다.
 
         add(bottomPanel, BorderLayout.SOUTH);
 
@@ -187,39 +230,31 @@ public class MainUI extends JFrame {
     private void updateRoutineList(List<Routine> routines) {
         tableModel.setRowCount(0); // 기존 테이블 내용 제거
         for (Routine routine : routines) {
-            String typeStr = (routine instanceof DailyRoutine) ? "[일일]" : "[일반]";
+            String typeStr;
+            String streakInfo = ""; // 연속 완료일 정보
+
+            // instanceof를 사용해 실제 객체 타입에 따라 분기
+            if (routine instanceof DailyRoutine) {
+                typeStr = "[일일]";
+                streakInfo = String.valueOf(((DailyRoutine) routine).getStreakCount());
+            } else {
+                typeStr = "[일반]";
+            }
+
             Object[] rowData = {
                     routine.isCompleted(),
                     typeStr,
                     routine.getContent(),
                     routine.getDifficulty(),
-                    (routine instanceof DailyRoutine) ? ((DailyRoutine)routine).getStreakCount() : "",
+                    streakInfo, // 현재는 연속 루틴 로직이 없으므로 항상 비어있음
                     routine.getId()  // 숨겨진 ID 컬럼 (식별용)
             };
             tableModel.addRow(rowData);
         }
     }
 
-    // 루틴 추가 다이얼로그 후 추가 처리
-    private void addRoutine() {
-        String content = JOptionPane.showInputDialog(this, "루틴 내용을 입력하세요:");
-        if (content != null && !content.trim().isEmpty()) {
-            int difficulty = new Gemini().getDif(content);
-            routineManager.addRoutine(content, difficulty);
-            updateRoutineList();
-            saveUserData();
-        }
-    }
-
-    private void addDailyRoutine() {
-        String content = JOptionPane.showInputDialog(this, "루틴 내용을 입력하세요:");
-        if (content != null && !content.trim().isEmpty()) {
-            int difficulty = new Gemini().getDif(content);
-            routineManager.addDailyRoutine(content, difficulty);
-            updateRoutineList();
-            saveUserData();
-        }
-    }
+    // [제거] 현재 JTable UI와 관련 없는 불필요한 메서드들 제거 (addRoutine(String), updateStatusPanel, createRoutineItem)
+    // 이 메서드들은 이전 버전의 UI에서 사용되었던 것으로 보입니다.
 
     // 변경된 사용자 데이터 저장 호출
     private void saveUserData() {
@@ -231,5 +266,23 @@ public class MainUI extends JFrame {
         saveUserData();
         MainAppGUI.logout();
         dispose();
+    }
+
+    // --- [추가] 차트 보기 메서드 ---
+    private void showStatisticsChart() {
+        if (this.userData == null) {
+            JOptionPane.showMessageDialog(this, "사용자 데이터가 로드되지 않았습니다.", "오류", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        SwingUtilities.invokeLater(() -> {
+            // MainUI의 userData 필드를 사용하도록 수정 (원본의 user -> userData)
+            ChartDisplayFrame chartFrame = new ChartDisplayFrame(this.userData);
+            chartFrame.setVisible(true);
+        });
+    }
+
+    // 화면 보이기 메서드
+    public void showFrame() { // 원본에 show() 메서드가 없어 showFrame()으로 명명
+        this.setVisible(true);
     }
 }

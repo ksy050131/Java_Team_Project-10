@@ -4,6 +4,7 @@
       <root url="jar://$PROJECT_DIR$/bson-5.5.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/mongodb-driver-core-5.5.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/mongodb-driver-sync-5.5.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jfreechart-1.5.6.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

@@ -10,7 +10,8 @@ import java.nio.charset.StandardCharsets;
 public class Gemini {
 
     // api가 필요합니다 api발급받는 곳: https://aistudio.google.com/app/apikey
-    private static final String API_KEY = "AIzaSyAKsYzDRP-Ls0Jpjf_BPNHs0rlefcLE7_s";
+
+    private static final String API_KEY = "AIzaSyB1Z2b-iaUWOLOJZJA7sMGGlWw0erx8G_M";
 
     // 모델명
     private static final String MODEL_NAME = "gemini-1.5-flash-latest";
@@ -94,7 +95,7 @@ public class Gemini {
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
             String raw = response.toString();
-            //System.out.println(raw);  //확인용도
+            System.out.println(raw);  //확인용도
 
             // 정규식으로 1~5 중 첫번째 숫자 찾기
             java.util.regex.Pattern p = java.util.regex.Pattern.compile("[1-5]");
