@@ -1,8 +1,9 @@
 package title;
 
 import data.UserData;
-import java.util.ArrayList;
 import java.util.List;
+import javax.swing.*;
+import java.awt.*;
 
 public class TitleManager {
       // 누적 경험치 기반 칭호 목록
@@ -74,6 +75,32 @@ public class TitleManager {
                 user.setCurrentTitle(title);
                 System.out.println("  - '" + title + "' 칭호를 장착했습니다!");
             }
+        }
+    }
+
+    //GUI 칭호선택메뉴 추가
+    public static void showTitleSelectionDialog(UserData user, Component parent) {
+        List<String> titles = user.getOwnedTitles();
+
+        if (titles.isEmpty()) {
+            JOptionPane.showMessageDialog(parent, "아직 보유한 칭호가 없습니다.", "칭호 선택", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        String[] options = titles.toArray(new String[0]);
+        String selected = (String) JOptionPane.showInputDialog(
+                parent,
+                "장착할 칭호를 선택하세요:",
+                "칭호 선택",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                options,
+                user.getCurrentTitle() // 기본 선택 값
+        );
+
+        if (selected != null && !selected.equals(user.getCurrentTitle())) {
+            user.setCurrentTitle(selected);
+            JOptionPane.showMessageDialog(parent, "'" + selected + "' 칭호가 장착되었습니다!", "칭호 변경 완료", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 }

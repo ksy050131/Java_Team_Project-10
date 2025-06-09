@@ -14,7 +14,7 @@ public class ExpManager {
         this.userData = userData;
     }
 
-    public void addExpFromRoutine(Routine routine) {
+    public int addExpFromRoutine(Routine routine) {
         int finalExp;
         if (routine.getLastGainedExp() == 0) {
             // 1. 기본 경험치 (난이도 * 15) ← 수정됨
@@ -57,9 +57,10 @@ public class ExpManager {
         routine.setLastGainedExp(finalExp);
 
         checkLevelUp();
+        return finalExp;
     }
     // 루틴 완료 취소 시 exp 차감을 위한 메소드
-    public void removeExpFromRoutine(Routine routine) {
+    public int removeExpFromRoutine(Routine routine) {
         int expToRemove = routine.getLastGainedExp();
         userData.setExp(Math.max(0, userData.getExp() - expToRemove));
         System.out.printf("[-] %d EXP 차감 (완료 취소)\n", expToRemove);
@@ -73,6 +74,7 @@ public class ExpManager {
         if (userData.getExp() < 0) {
             userData.setExp(0);
         }
+        return expToRemove;
     }
 
     private void levelDown() {
