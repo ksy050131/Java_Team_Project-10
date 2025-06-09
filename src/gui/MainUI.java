@@ -198,12 +198,37 @@ public class MainUI extends JFrame {
             saveUserData();
         });
 
+        // [추가] 수정 버튼 추가
+        JButton edit = new JButton("수정");
+        edit.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        edit.addActionListener(e -> {
+            String newContent = JOptionPane.showInputDialog(this, "루틴 내용을 수정하세요:", routine.getContent());
+            if (newContent != null && !newContent.trim().isEmpty()) {
+                routine.setContent(newContent);
+                int newDiff = new Gemini().getDif(newContent);
+                routine.setDifficulty(newDiff);
+                saveUserData();
+                refreshRoutineCards();
+            }
+        });
+
         card.add(check);
         card.add(diff);
         card.add(type);
         card.add(Box.createVerticalGlue()); // 여유 공간
-        card.add(delete);
 
+        // 버튼 영역 패널 (BorderLayout 사용)
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        buttonPanel.setBackground(Color.WHITE);
+
+        buttonPanel.add(delete);
+        buttonPanel.add(Box.createHorizontalGlue());
+        buttonPanel.add(edit);
+
+        card.add(buttonPanel);
         return card;
     }
 
