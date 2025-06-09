@@ -15,49 +15,43 @@ public class ExpManager {
     }
 
     public void addExpFromRoutine(Routine routine) {
-        // 1. 기본 경험치 (난이도 * 10)
-        int baseExp = routine.getDifficulty() * 10;
+    // 1. 기본 경험치 (난이도 * 15) ← 수정됨
+    int baseExp = routine.getDifficulty() * 15;
 
-        // 2. 랜덤 보너스 (0~20% 추가)
-        double randomBonus = 1.0 + (random.nextDouble() * 0.2);
-        int expWithBonus = (int) Math.round(baseExp * randomBonus);
+    // 2. 랜덤 보너스 (0~50% 추가) ← 수정됨
+    double randomBonus = 1.0 + (random.nextDouble() * 0.5);
+    int expWithBonus = (int) Math.round(baseExp * randomBonus);
 
-        // 3. STREAK 보너스 적용
-        if (routine instanceof DailyRoutine dr) {
-            if (dr.getStreakCount() >= 7) {
-                expWithBonus += 50;
-            } else if (dr.getStreakCount() >= 3) {
-                expWithBonus += 20;
-            }
+    // 3. STREAK 보너스 적용
+    if (routine instanceof DailyRoutine dr) {
+        if (dr.getStreakCount() >= 7) {
+            expWithBonus += 50;
+        } else if (dr.getStreakCount() >= 3) {
+            expWithBonus += 20;
         }
-
-        // 4. 난이도 가중치 적용 (1.0 ~ 2.0)
-        double weight = 1.0 + (routine.getDifficulty() * 0.2);
-        int finalExp = (int) Math.round(expWithBonus * weight);
-
-        // 경험치 추가
-        userData.setExp(userData.getExp() + finalExp);
-        // 경험치 routine 클래스에 저장 (추후 차감 시에 반영하기 위해)
-        routine.setLastGainedExp(finalExp);
-
-        // 누적 경험치 업데이트
-        userData.setTotalExp(userData.getTotalExp() + finalExp);
-
-        // 누적 경험치 기반 칭호 체크
-        TitleManager.checkExpTitles(userData);
-
-        System.out.printf(
-                "[+] %d EXP = [기본 %d + 랜덤 보너스 %.0f%% + 스트릭 보너스 %d] × 난이도 가중치 %.1f\n",
-                finalExp,
-                baseExp,
-                (randomBonus - 1.0) * 100,
-                expWithBonus - baseExp,
-                weight
-        );
-
-        checkLevelUp();
     }
 
+    // 4. 난이도 가중치 적용 (1.0 ~ 2.0)
+    double weight = 1.0 + (routine.getDifficulty() * 0.2);
+    int finalExp = (int) Math.round(expWithBonus * weight);
+
+    // 경험치 추가
+    userData.setExp(userData.getExp() + finalExp);
+    userData.setTotalExp(userData.getTotalExp() + finalExp);
+
+    routine.setLastGainedExp(finalExp);
+
+    System.out.printf(
+        "[+] %d EXP = [기본 %d + 랜덤 보너스 %.0f%% + 스트릭 보너스 %d] × 난이도 가중치 %.1f\n",
+        finalExp,
+        baseExp,
+        (randomBonus - 1.0) * 100,
+        expWithBonus - baseExp,
+        weight
+    );
+
+    checkLevelUp();
+}
     // 루틴 완료 취소 시 exp 차감을 위한 메소드
     public void removeExpFromRoutine(Routine routine) {
         int expToRemove = routine.getLastGainedExp();

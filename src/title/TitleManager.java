@@ -5,16 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TitleManager {
-    // 누적 경험치 기반 칭호 목록
+      // 누적 경험치 기반 칭호 목록
     private static final String[] EXP_TITLES = {
-            "루틴새싹", "꾸준이", "루틴러버", "하루장인",
-            "일상마스터", "오늘도성공적", "생활요정", "고인물"
+        "Beginner", "루틴씨앗", "루틴새싹", "꾸준이", "루틴러버",
+        "하루장인", "일상마스터", "오늘도성공적", "생활요정", "고인물"
     };
 
     // 누적 경험치 임계값
     private static final int[] EXP_THRESHOLDS = {
-            10000, 20000, 30000, 40000,
-            50000, 60000, 70000, 71500
+        1000, 5000, 10000, 20000, 30000,
+        40000, 50000, 60000, 70000, 71500
     };
 
     // 회차 기반 칭호 목록 (n회차)
