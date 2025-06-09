@@ -1,4 +1,4 @@
-// 이 코드는 Swing 기반 Habit Tracker의 UI를 카드형 레이아웃으로 개편한 버전입니다.
+// 기존 JTable을 사용하던 UI를 카드형 레이아웃으로 개편한 버전입니다.
 // JTable이 아닌 JPanel 내부에 루틴들을 카드 스타일로 배치합니다.
 // 깔끔하고 직관적인 인터페이스를 빠르게 구성할 수 있습니다.
 
@@ -12,6 +12,7 @@ import exp.ExpManager;
 import routine.DailyRoutine;
 import routine.Routine;
 import routine.RoutineManager;
+import chart.ChartDisplayFrame;
 
 import javax.swing.*;
 import java.awt.*;
@@ -108,6 +109,9 @@ public class MainUI extends JFrame {
         JButton sortDate = new JButton("등록일순");
         sortDate.addActionListener(e -> refreshRoutineCards(routineManager.getRoutinesSortedByRegister()));
 
+        JButton viewStatsBtn = new JButton("통계 보기");
+        viewStatsBtn.addActionListener(e -> showStatisticsChart());
+
         JButton logout = new JButton("로그아웃");
         logout.addActionListener(e -> logout());
 
@@ -116,6 +120,7 @@ public class MainUI extends JFrame {
         bottom.add(sortName);
         bottom.add(sortComplete);
         bottom.add(sortDate);
+        bottom.add(viewStatsBtn);
         bottom.add(logout);
 
         return bottom;
@@ -227,6 +232,19 @@ public class MainUI extends JFrame {
         expBar.setString(currentExp + " / " + maxExp);
         expBar.setStringPainted(true);
     }
+
+    // [추가] 통계 보기
+    private void showStatisticsChart() {
+        if (this.userData == null) {
+            JOptionPane.showMessageDialog(this, "사용자 데이터가 로드되지 않았습니다.", "오류", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        SwingUtilities.invokeLater(() -> {
+            ChartDisplayFrame chartFrame = new ChartDisplayFrame(this.userData);
+            chartFrame.setVisible(true);
+        });
+    }
+
 
     private void saveUserData() {
         Database.updateUserData(userData);
