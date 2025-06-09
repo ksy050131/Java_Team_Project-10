@@ -160,6 +160,7 @@ public class DailyRoutine extends Routine {
                 LocalDate markedDate = LocalDate.parse(getDateMarkedCompleted());
                 if (markedDate.isBefore(today)) {
                     markAsUncompleted(); // 스트릭 계산 로직이 포함된 uncomplete 호출
+                    setLastGainedExp(0); // 이전에 계산된 경험치 초기화
                     System.out.println("일일 루틴 '" + getContent() + "'이(가) 새 날짜를 맞아 초기화되었습니다.");
                 }
             }
