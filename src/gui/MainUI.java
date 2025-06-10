@@ -14,6 +14,7 @@ import routine.Routine;
 import routine.RoutineManager;
 import chart.ChartDisplayFrame; // [추가] ChartDisplayFrame 클래스 임포트
 import title.TitleManager; // [추가] TitleManager 클래스 임포트
+import account.Account;
 
 import javax.swing.*;
 import java.awt.*;
@@ -171,27 +172,69 @@ public class MainUI extends JFrame {
             updateTitleDisplay();
         });
 
+                // --- 회원 탈퇴 버튼을 설정 드롭다운으로 대체 ---
+        JButton settingsButton = new JButton("설정");
+        settingsButton.setPreferredSize(new Dimension(80, 30));
+        JPopupMenu settingsMenu = new JPopupMenu();
+
+
+        JMenuItem changePasswordItem = new JMenuItem("비밀번호 변경");
+        changePasswordItem.addActionListener(e -> {
+            String current = JOptionPane.showInputDialog(this, "현재 비밀번호:");
+            String newPwd = JOptionPane.showInputDialog(this, "새 비밀번호:");
+            if (current != null && newPwd != null) {
+                boolean changed = MainAppGUI.getAccount().changePassword(userData.getUserId(), current, newPwd);
+                if (changed) {
+                    JOptionPane.showMessageDialog(this, "비밀번호가 변경되었습니다.");
+                    userData.setPassword(MainAppGUI.getAccount().encrypt(newPwd)); // userData 내부도 갱신
+                    saveUserData(); // 변경된 비밀번호 저장
+                } else {
+                    JOptionPane.showMessageDialog(this, "현재 비밀번호가 틀렸습니다.");
+                }
+            }
+        });
+
+        JMenuItem deleteAccountItem = new JMenuItem("회원 탈퇴");
+        deleteAccountItem.addActionListener(e -> {
+            String password = JOptionPane.showInputDialog(this, "비밀번호를 입력하세요:");
+            if (password == null) return;
+
+            String confirm = JOptionPane.showInputDialog(this, "정말 탈퇴하시겠습니까?\n탈퇴하려면 'CONFIRM'을 입력하세요:");
+            if (confirm == null || !confirm.equalsIgnoreCase("CONFIRM")) {
+                JOptionPane.showMessageDialog(this, "회원 탈퇴가 취소되었습니다.");
+                return;
+            }
+
+            String userId = userData.getUserId(); // 자동으로 현재 사용자 ID 사용
+            boolean deleted = MainAppGUI.getAccount().deleteAccount(userId, password);
+            if (deleted) {
+                JOptionPane.showMessageDialog(this, "회원 탈퇴가 완료되었습니다.");
+                MainAppGUI.logout();
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "탈퇴 실패: 비밀번호가 틀렸습니다.");
+            }
+        });
+
+
+        settingsMenu.add(changePasswordItem);
+        settingsMenu.add(deleteAccountItem);
+
+        settingsButton.addActionListener(e -> {
+            settingsMenu.show(settingsButton, 0, settingsButton.getHeight());
+        });
+
         JButton logout = new JButton("로그아웃");
         logout.addActionListener(e -> logout());
 
-        // [수정] 회원 탈퇴 -> mainUI로 옮김
-        JButton deleteButton = new JButton("회원 탈퇴");
-        deleteButton.addActionListener(e -> {
-            String userId = JOptionPane.showInputDialog(this, "아이디:");
-            String password = JOptionPane.showInputDialog(this, "비밀번호:");
-
-            boolean deleted = MainAppGUI.getAccount().deleteAccount(userId, password);
-            JOptionPane.showMessageDialog(this,
-                    deleted ? "회원 탈퇴가 완료되었습니다." : "탈퇴 실패: 아이디 또는 비밀번호가 틀렸습니다.");
-        });
 
         bottom.add(addNormal);
         bottom.add(addDaily);
         bottom.add(sortModeButton);
         bottom.add(viewStatsBtn);
         bottom.add(selectTitleBtn);
+        bottom.add(settingsButton);
         bottom.add(logout);
-        bottom.add(deleteButton);
 
         return bottom;
     }
