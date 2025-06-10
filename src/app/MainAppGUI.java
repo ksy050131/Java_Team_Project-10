@@ -20,7 +20,7 @@ public class MainAppGUI {
         } catch (Exception ex) {
             System.err.println("FlatLaf 초기화 실패: " + ex.getMessage());
         }
-        
+
         SwingUtilities.invokeLater(() -> new LoginPage().show());
     }
 
