@@ -94,6 +94,16 @@ public class SignUpPage extends JFrame {
                 );
                 return;
             }
+            // 전화번호 형식 검사 (010-XXXX-XXXX)
+            if (!phone.isEmpty() && !phone.matches("010-\\d{4}-\\d{4}")) {
+                JOptionPane.showMessageDialog(
+                        SignUpPage.this,
+                        "전화번호는 010-XXXX-XXXX 형식으로 입력해주세요.",
+                        "입력 오류",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
 
             // 생년월일 형식 검사 (간단한 버전)
             if (!birth.isEmpty() && !birth.matches("\\d{4}-\\d{2}-\\d{2}")) {
