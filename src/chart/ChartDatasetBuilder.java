@@ -2,7 +2,8 @@ package chart;
 
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
-import routine.Routine; // 사용자의 Routine 클래스 임포트
+import routine.DailyRoutine; // DailyRoutine 임포트 추가
+import routine.Routine;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -12,36 +13,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream; // Stream 임포트 추가
 
 public class ChartDatasetBuilder {
 
     private static final DateTimeFormatter DATE_FORMATTER_YYYY_MM_DD = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter DATE_FORMATTER_MM_DD = DateTimeFormatter.ofPattern("MM-dd");
 
-    /**
-     * 최근 N일간의 날짜별 루틴 완료 횟수 데이터를 포함하는 CategoryDataset을 생성합니다.
-     *
-     * @param allRoutines 사용자의 모든 루틴 목록
-     * @param endDate     차트의 마지막 날짜 (보통 오늘)
-     * @param days        표시할 일 수 (예: 7일)
-     * @param seriesName  데이터 시리즈의 이름 (범례에 표시됨)
-     * @return 생성된 CategoryDataset
-     */
     public CategoryDataset createDailyCompletionDataset(List<Routine> allRoutines, LocalDate endDate, int days, String seriesName) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         LocalDate startDate = endDate.minusDays(days - 1);
 
-        // 날짜별 완료된 루틴 수 계산
+        // [수정] DailyRoutine의 모든 완료 날짜와 일반 Routine의 완료 날짜를 모두 집계
         Map<LocalDate, Long> completionsByDate = allRoutines.stream()
-                .filter(Routine::isCompleted)
-                .filter(r -> r.getDateMarkedCompleted() != null && !r.getDateMarkedCompleted().isEmpty())
+                .flatMap(routine -> {
+                    if (routine instanceof DailyRoutine) {
+                        // DailyRoutine이면 모든 완료 날짜 목록을 스트림으로 반환
+                        DailyRoutine dr = (DailyRoutine) routine;
+                        return dr.getCompletionDates().stream();
+                    } else {
+                        // 일반 Routine이면 완료된 경우에만 단일 완료 날짜를 스트림으로 반환
+                        if (routine.isCompleted() && routine.getDateMarkedCompleted() != null) {
+                            return Stream.of(routine.getDateMarkedCompleted());
+                        } else {
+                            return Stream.empty();
+                        }
+                    }
+                })
+                .filter(dateStr -> dateStr != null && !dateStr.isEmpty())
                 .collect(Collectors.groupingBy(
-                        r -> {
+                        dateStr -> {
                             try {
-                                return LocalDate.parse(r.getDateMarkedCompleted(), DATE_FORMATTER_YYYY_MM_DD);
+                                return LocalDate.parse(dateStr, DATE_FORMATTER_YYYY_MM_DD);
                             } catch (DateTimeParseException e) {
-                                System.err.println("날짜 파싱 오류: " + r.getDateMarkedCompleted() + " - " + e.getMessage());
-                                return null; // 파싱 실패 시 null 반환하여 필터링에서 제외
+                                System.err.println("날짜 파싱 오류: " + dateStr + " - " + e.getMessage());
+                                return null;
                             }
                         },
                         Collectors.counting()

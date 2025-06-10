@@ -12,7 +12,8 @@ import exp.ExpManager;
 import routine.DailyRoutine;
 import routine.Routine;
 import routine.RoutineManager;
-import chart.ChartDisplayFrame;
+import chart.ChartDisplayFrame; // [추가] ChartDisplayFrame 클래스 임포트
+import title.TitleManager; // [추가] TitleManager 클래스 임포트
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,6 +29,10 @@ public class MainUI extends JFrame {
     private JLabel levelLabel;
     private JLabel titleLabel;
     private JProgressBar expBar;
+    private JLabel expDeltaLabel; // [추가] EXP 증가 표시용 라벨
+    // 페이드 아웃용 타이머와 알파 값
+    private Timer fadeTimer;
+    private float alpha = 1.0f;
 
     public MainUI(UserData userData) {
         this.userData = userData;
@@ -39,6 +44,7 @@ public class MainUI extends JFrame {
     private void initUI() {
         setTitle("루틴 코치 - 카드 UI");
         setSize(900, 700);
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
@@ -50,31 +56,53 @@ public class MainUI extends JFrame {
     }
 
     private JPanel createTopPanel() {
-        JPanel top = new JPanel(new GridLayout(2, 1));
+        JPanel top = new JPanel(new GridLayout(3, 1)); // 행 3개로 확장
 
-        JPanel topRow = new JPanel(new BorderLayout());
-        JLabel welcome = new JLabel(userData.getUsername() + "님 환영합니다!");
+        // 사용자 환영 문구
+        String displayName = userData.getCurrentTitle().isBlank()
+                ? userData.getUsername()
+                : "[" + userData.getCurrentTitle() + "]" + userData.getUsername();
+        JLabel welcome = new JLabel(displayName + "님 환영합니다!");
         welcome.setFont(new Font("맑은 고딕", Font.BOLD, 18));
 
+        // 레벨 및 EXP 바
         levelLabel = new JLabel("Lv." + userData.getLevel());
         expBar = new JProgressBar(0, userData.getNeedExp());
         expBar.setValue(userData.getExp());
         expBar.setString(userData.getExp() + " / " + userData.getNeedExp());
         expBar.setStringPainted(true);
 
-        JPanel right = new JPanel(new BorderLayout());
-        right.add(levelLabel, BorderLayout.NORTH);
-        right.add(expBar, BorderLayout.SOUTH);
+        JPanel expPanel = new JPanel(new BorderLayout());
+        expPanel.add(levelLabel, BorderLayout.NORTH);
+        expPanel.add(expBar, BorderLayout.SOUTH);
 
+        JPanel topRow = new JPanel(new BorderLayout());
         topRow.add(welcome, BorderLayout.WEST);
-        topRow.add(right, BorderLayout.EAST);
+        topRow.add(expPanel, BorderLayout.EAST);
 
-        JPanel secondRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        titleLabel = new JLabel("칭호: " + userData.getCurrentTitle());
-        secondRow.add(titleLabel);
+        // 회차 및 EXP 증가 표시
+        JPanel secondRow = new JPanel(new GridLayout(1, 2));
+        JLabel cycleLabel = new JLabel("회차: " + userData.getCycle() + "회차", SwingConstants.LEFT);
+        cycleLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        secondRow.add(cycleLabel);
+
+        expDeltaLabel = new JLabel();
+        expDeltaLabel.setFont(new Font("맑은 고딕", Font.BOLD, 14));
+        expDeltaLabel.setForeground(new Color(0, 128, 0));
+        expDeltaLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        expDeltaLabel.setVisible(false);
+        secondRow.add(expDeltaLabel);
+
+        // 칭호
+        JPanel thirdRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        titleLabel = new JLabel("《현재 칭호》 " + userData.getCurrentTitle(), SwingConstants.CENTER);
+        titleLabel.setFont(new Font("맑은 고딕", Font.ITALIC, 14));
+        thirdRow.add(titleLabel);
 
         top.add(topRow);
         top.add(secondRow);
+        top.add(thirdRow);
+
         return top;
     }
 
@@ -93,34 +121,64 @@ public class MainUI extends JFrame {
 
     private JPanel createBottomPanel() {
         JPanel bottom = new JPanel(new GridLayout(1, 6, 10, 10));
-
         JButton addNormal = new JButton("일반 루틴 추가");
         addNormal.addActionListener(e -> addRoutine(false));
 
         JButton addDaily = new JButton("일일 루틴 추가");
         addDaily.addActionListener(e -> addRoutine(true));
 
-        JButton sortName = new JButton("이름순");
-        sortName.addActionListener(e -> refreshRoutineCards(routineManager.getRoutinesSortedByName()));
+        // --- [추가] 정렬 드롭다운 버튼 ---
+        JButton sortModeButton = new JButton("정렬: 등록일순"); // 기본값 표시
+        sortModeButton.setPreferredSize(new Dimension(130, 30)); // [추가] 버튼 크기 고정
+        JPopupMenu sortMenu = new JPopupMenu();
+        sortMenu.setPreferredSize(new Dimension(130, 90)); // [추가] 드롭다운 메뉴 크기 고정
 
-        JButton sortComplete = new JButton("완료순");
-        sortComplete.addActionListener(e -> refreshRoutineCards(routineManager.getRoutinesSortedByComplete()));
+        JMenuItem sortByNameItem = new JMenuItem("이름순");
+        sortByNameItem.setPreferredSize(new Dimension(130, 30)); // [추가] 메뉴 항목 크기 고정
+        sortByNameItem.addActionListener(e -> {
+            refreshRoutineCards(routineManager.getRoutinesSortedByName());
+            sortModeButton.setText("정렬: 이름순");
+        });
+        sortMenu.add(sortByNameItem);
 
-        JButton sortDate = new JButton("등록일순");
-        sortDate.addActionListener(e -> refreshRoutineCards(routineManager.getRoutinesSortedByRegister()));
+        JMenuItem sortByCompleteItem = new JMenuItem("완료순");
+        sortByCompleteItem.setPreferredSize(new Dimension(130, 30)); // [추가]
+        sortByCompleteItem.addActionListener(e -> {
+            refreshRoutineCards(routineManager.getRoutinesSortedByComplete());
+            sortModeButton.setText("정렬: 완료순");
+        });
+        sortMenu.add(sortByCompleteItem);
+
+        JMenuItem sortByRegisterItem = new JMenuItem("등록일순");
+        sortByRegisterItem.setPreferredSize(new Dimension(130, 30)); // [추가]
+        sortByRegisterItem.addActionListener(e -> {
+            refreshRoutineCards(routineManager.getRoutinesSortedByRegister());
+            sortModeButton.setText("정렬: 등록일순");
+        });
+        sortMenu.add(sortByRegisterItem);
+
+        sortModeButton.addActionListener(e -> {
+            sortMenu.show(sortModeButton, 0, sortModeButton.getHeight());
+        });
 
         JButton viewStatsBtn = new JButton("통계 보기");
         viewStatsBtn.addActionListener(e -> showStatisticsChart());
+
+        // --- [추가] 칭호 선택 버튼 ---
+        JButton selectTitleBtn = new JButton("칭호 선택");
+        selectTitleBtn.addActionListener(e -> {
+            TitleManager.showTitleSelectionDialog(userData, this);
+            updateTitleDisplay();
+        });
 
         JButton logout = new JButton("로그아웃");
         logout.addActionListener(e -> logout());
 
         bottom.add(addNormal);
         bottom.add(addDaily);
-        bottom.add(sortName);
-        bottom.add(sortComplete);
-        bottom.add(sortDate);
+        bottom.add(sortModeButton);
         bottom.add(viewStatsBtn);
+        bottom.add(selectTitleBtn);
         bottom.add(logout);
 
         return bottom;
@@ -183,19 +241,22 @@ public class MainUI extends JFrame {
             if (result == JOptionPane.YES_OPTION) {
                 routineManager.deleteRoutine(routine.getId());
                 refreshRoutineCards();
+
             }
         });
 
         check.addActionListener(e -> {
+            int delta = 0;
             if (check.isSelected()) {
                 expManager.addExpFromRoutine(routine);
                 routineManager.completeRoutine(routine.getId());
             } else {
-                expManager.removeExpFromRoutine(routine);
+                delta = -expManager.removeExpFromRoutine(routine);
                 routineManager.uncompleteRoutine(routine.getId());
             }
             updateExpDisplay();
             saveUserData();
+            showExpDelta(delta);
         });
 
         // [추가] 수정 버튼 추가
@@ -258,6 +319,12 @@ public class MainUI extends JFrame {
         expBar.setStringPainted(true);
     }
 
+    private void updateTitleDisplay() {
+        if (titleLabel != null) {
+            titleLabel.setText("《현재 칭호》  " + userData.getCurrentTitle());
+        }
+    }
+
     // [추가] 통계 보기
     private void showStatisticsChart() {
         if (this.userData == null) {
@@ -270,6 +337,34 @@ public class MainUI extends JFrame {
         });
     }
 
+    // 경험치 증가량 표시 후 서서히 사라지도록 페이드 아웃 처리
+    //게임과 유사하게 표현
+    private void showExpDelta(int delta) {
+        if (delta == 0) return;
+
+        expDeltaLabel.setText((delta > 0 ? "+" : "") + delta);
+        expDeltaLabel.setVisible(true);
+        alpha = 1.0f;
+        expDeltaLabel.setForeground(new Color(0, 128, 0, 255)); // 완전 불투명 초록
+
+        // 이전 타이머가 실행 중이면 중지
+        if (fadeTimer != null && fadeTimer.isRunning()) {
+            fadeTimer.stop();
+        }
+
+        fadeTimer = new Timer(50, e -> {
+            alpha -= 0.05f; // 투명도 감소
+            if (alpha <= 0f) {
+                alpha = 0f;
+                expDeltaLabel.setVisible(false);
+                fadeTimer.stop();
+            }
+            int alphaInt = (int) (alpha * 255);
+            Color baseColor = delta > 0 ? new Color(0, 128, 0) : Color.RED;
+            expDeltaLabel.setForeground(new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), alphaInt));
+        });
+        fadeTimer.start();
+    }
 
     private void saveUserData() {
         Database.updateUserData(userData);
