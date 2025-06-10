@@ -57,6 +57,7 @@ public class ExpManager {
         routine.setLastGainedExp(finalExp);
 
         checkLevelUp();
+        TitleManager.checkExpTitles(userData); //칭호지급을 위해 임시로 넣어뒀습니다.
         return finalExp;
     }
     // 루틴 완료 취소 시 exp 차감을 위한 메소드
@@ -68,10 +69,13 @@ public class ExpManager {
             userData.setExp(0);
             return -1; // 여기 수정해야할 것 같은데
         }
-        userData.setExp(Math.max(0, userData.getExp() - expToRemove));
+        //userData.setExp(Math.max(0, userData.getExp() - expToRemove));
+        userData.setExp(userData.getExp() - expToRemove); // 음수 허용
         System.out.printf("[-] %d EXP 차감 (완료 취소)\n", expToRemove);
 
+
         // 레벨 하락 처리
+        System.out.printf("최종 %d\n",userData.getExp());
         while (userData.getExp() < 0 && userData.getLevel() > 1) {
             levelDown();
         }
