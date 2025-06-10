@@ -60,9 +60,7 @@ public class LoginPage extends JFrame {
 
         // 텍스트 링크 스타일 버튼 생성 함수
         JButton findIdButton = createFlatTextButton("아이디 찾기");
-        JButton resetPwButton = createFlatTextButton("비밀번호 재설정");
-        JButton deleteButton = createFlatTextButton("회원 탈퇴");
-        deleteButton.setForeground(Color.RED); // 회원 탈퇴만 빨간색으로
+        JButton findPwButton = createFlatTextButton("비밀번호 찾기");
 
         // 아이디 찾기
         findIdButton.addActionListener(e -> {
@@ -78,8 +76,8 @@ public class LoginPage extends JFrame {
             }
         });
 
-        // 비밀번호 재설정
-        resetPwButton.addActionListener(e -> {
+        // 비밀번호 찾기
+        findPwButton.addActionListener(e -> {
             String name = JOptionPane.showInputDialog(this, "이름:");
             String phone = JOptionPane.showInputDialog(this, "전화번호:");
             String birth = JOptionPane.showInputDialog(this, "생년월일 (YYYY-MM-DD):");
@@ -90,19 +88,8 @@ public class LoginPage extends JFrame {
                     success ? "비밀번호가 재설정되었습니다." : "정보가 일치하지 않습니다.");
         });
 
-        // 회원 탈퇴
-        deleteButton.addActionListener(e -> {
-            String userId = JOptionPane.showInputDialog(this, "아이디:");
-            String password = JOptionPane.showInputDialog(this, "비밀번호:");
-
-            boolean deleted = MainAppGUI.getAccount().deleteAccount(userId, password);
-            JOptionPane.showMessageDialog(this,
-                    deleted ? "회원 탈퇴가 완료되었습니다." : "탈퇴 실패: 아이디 또는 비밀번호가 틀렸습니다.");
-        });
-
         linkPanel.add(findIdButton);
-        linkPanel.add(resetPwButton);
-        linkPanel.add(deleteButton);
+        linkPanel.add(findPwButton);
 
         add(linkPanel, BorderLayout.SOUTH);
     }

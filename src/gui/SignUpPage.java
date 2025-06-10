@@ -42,7 +42,7 @@ public class SignUpPage extends JFrame {
         add(pwField);
 
         // 전화번호 필드
-        add(new JLabel("전화번호:"));
+        add(new JLabel("전화번호 (010-XXXX-XXXX):"));
         phoneField = new JTextField();
         add(phoneField);
 

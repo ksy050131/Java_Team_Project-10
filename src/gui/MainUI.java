@@ -120,7 +120,7 @@ public class MainUI extends JFrame {
     }
 
     private JPanel createBottomPanel() {
-        JPanel bottom = new JPanel(new GridLayout(1, 6, 10, 10));
+        JPanel bottom = new JPanel(new GridLayout(1, 7, 10, 10));
         JButton addNormal = new JButton("일반 루틴 추가");
         addNormal.addActionListener(e -> addRoutine(false));
 
@@ -174,12 +174,24 @@ public class MainUI extends JFrame {
         JButton logout = new JButton("로그아웃");
         logout.addActionListener(e -> logout());
 
+        // [수정] 회원 탈퇴 -> mainUI로 옮김
+        JButton deleteButton = new JButton("회원 탈퇴");
+        deleteButton.addActionListener(e -> {
+            String userId = JOptionPane.showInputDialog(this, "아이디:");
+            String password = JOptionPane.showInputDialog(this, "비밀번호:");
+
+            boolean deleted = MainAppGUI.getAccount().deleteAccount(userId, password);
+            JOptionPane.showMessageDialog(this,
+                    deleted ? "회원 탈퇴가 완료되었습니다." : "탈퇴 실패: 아이디 또는 비밀번호가 틀렸습니다.");
+        });
+
         bottom.add(addNormal);
         bottom.add(addDaily);
         bottom.add(sortModeButton);
         bottom.add(viewStatsBtn);
         bottom.add(selectTitleBtn);
         bottom.add(logout);
+        bottom.add(deleteButton);
 
         return bottom;
     }
@@ -241,7 +253,6 @@ public class MainUI extends JFrame {
             if (result == JOptionPane.YES_OPTION) {
                 routineManager.deleteRoutine(routine.getId());
                 refreshRoutineCards();
-
             }
         });
 
