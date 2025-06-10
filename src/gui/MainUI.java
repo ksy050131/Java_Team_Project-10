@@ -34,6 +34,7 @@ public class MainUI extends JFrame {
     // 페이드 아웃용 타이머와 알파 값
     private Timer fadeTimer;
     private float alpha = 1.0f;
+    private JLabel cycleLabel;
 
     public MainUI(UserData userData) {
         this.userData = userData;
@@ -105,6 +106,12 @@ public class MainUI extends JFrame {
         top.add(thirdRow);
 
         return top;
+    }
+    //회차업데이트 메서드
+    private void updateCycleDisplay() {
+        if (cycleLabel != null) {
+            cycleLabel.setText("회차: " + userData.getCycle() + "회차");
+        }
     }
 
     private JScrollPane createCardScrollPane() {
@@ -309,6 +316,7 @@ public class MainUI extends JFrame {
                 routineManager.uncompleteRoutine(routine.getId());
             }
             updateExpDisplay();
+            updateCycleDisplay();
             saveUserData();
             showExpDelta(delta);
         });
