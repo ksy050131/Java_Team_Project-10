@@ -65,7 +65,7 @@ public class LoginPage extends JFrame {
         // 아이디 찾기
         findIdButton.addActionListener(e -> {
             String name = JOptionPane.showInputDialog(this, "이름:");
-            String phone = JOptionPane.showInputDialog(this, "전화번호:");
+            String phone = JOptionPane.showInputDialog(this, "전화번호 (010-XXXX-XXXX):");
             String birth = JOptionPane.showInputDialog(this, "생년월일 (YYYY-MM-DD):");
 
             String userId = MainAppGUI.getAccount().findId(phone, birth, name);
@@ -79,7 +79,7 @@ public class LoginPage extends JFrame {
         // 비밀번호 찾기
         findPwButton.addActionListener(e -> {
             String name = JOptionPane.showInputDialog(this, "이름:");
-            String phone = JOptionPane.showInputDialog(this, "전화번호:");
+            String phone = JOptionPane.showInputDialog(this, "전화번호 (010-XXXX-XXXX):");
             String birth = JOptionPane.showInputDialog(this, "생년월일 (YYYY-MM-DD):");
             String newPassword = JOptionPane.showInputDialog(this, "새 비밀번호:");
 
