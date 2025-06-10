@@ -248,7 +248,7 @@ public class MainUI extends JFrame {
         check.addActionListener(e -> {
             int delta = 0;
             if (check.isSelected()) {
-                expManager.addExpFromRoutine(routine);
+                delta = expManager.addExpFromRoutine(routine);
                 routineManager.completeRoutine(routine.getId());
             } else {
                 delta = -expManager.removeExpFromRoutine(routine);
